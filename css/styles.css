@@ -159,6 +159,13 @@ body {
   margin-bottom: 30px;
 }
 
+.app-logo {
+  display: block;
+  width: 170px;
+  height: auto;
+  margin: 0 auto 14px;
+}
+
 .section-title {
   font-size: 1.4rem;
   font-weight: 700;
