@@ -646,47 +646,117 @@ body {
   overflow-x: auto;
   border-radius: 12px;
   border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .report-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.85rem;
 }
 
-.report-table th {
-  background: rgba(108, 92, 231, 0.15);
-  color: var(--text);
-  padding: 12px 14px;
+/* La tabla de estadísticas necesita ancho mínimo para que en móvil
+   el scroll horizontal del contenedor haga su trabajo. */
+.report-table.stats-table {
+  min-width: 660px;
+}
+
+.report-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(135deg, #16213e, #1f4e79);
+  color: #fff;
+  padding: 13px 14px;
   text-align: left;
   font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
   white-space: nowrap;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.report-table th.th-num,
+.report-table td.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .report-table td {
-  padding: 10px 14px;
-  border-top: 1px solid var(--border);
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border);
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
-.report-table tr:hover td {
+.report-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Filas alternadas (zebra) */
+.report-table tbody tr:nth-child(even) td {
   background: rgba(255, 255, 255, 0.03);
+}
+
+.report-table tbody tr:hover td {
+  background: rgba(108, 92, 231, 0.10);
   color: var(--text);
 }
 
 .student-cell {
   font-weight: 500;
   color: var(--text) !important;
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.total-cell {
+  font-weight: 700;
+  color: var(--text) !important;
+}
+
+/* Encabezados con abreviatura + etiqueta */
+.th-code {
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-right: 5px;
+}
+
+.th-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  opacity: 0.85;
 }
 
 .pct-badge {
   display: inline-block;
+  min-width: 52px;
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   color: #fff;
+  text-align: center;
 }
+
+/* Detalle por fecha: badges de marca */
+.mark-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.mark-badge.mark-P { background: rgba(0, 184, 148, 0.16); color: #00b894; }
+.mark-badge.mark-F { background: rgba(214, 48, 49, 0.16); color: #d63031; }
+.mark-badge.mark-A { background: rgba(253, 203, 110, 0.16); color: #fdcb6e; }
+.mark-badge.mark-J { background: rgba(108, 92, 231, 0.18); color: #a29bfe; }
+.mark-badge.mark-N { background: rgba(156, 163, 175, 0.16); color: #9ca3af; }
+.mark-badge.mark-none { background: rgba(255, 255, 255, 0.06); color: #999; }
 
 /* ============================================
    TOAST
@@ -742,12 +812,22 @@ body {
     border: 1px solid #ccc;
     box-shadow: none;
   }
-  .report-table th { background: #eee; color: #000; }
+  .report-table thead th {
+    position: static;
+    background: #16213e !important;
+    color: #fff !important;
+  }
   .report-table td { color: #000; border-color: #ddd; }
+  .report-table tbody tr:nth-child(even) td { background: #f5f5f5; }
+  .report-table tbody tr:hover td { background: transparent; }
+  .th-label { display: inline-block !important; }
+  .table-wrap { overflow: visible; border-color: #ddd; }
+  /* Las filas de la tabla no se parten entre páginas del PDF */
+  .report-table tr { break-inside: avoid; }
   .summary-value { -webkit-text-fill-color: #000; color: #000; }
   /* Barras: sin animación (la altura inline final queda fija) y con colores de fondo impresos */
   .bar { animation: none !important; }
-  .bar, .pct-badge, .summary-card, .report-table th {
+  .bar, .pct-badge, .mark-badge, .summary-card, .report-table thead th {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -807,6 +887,9 @@ body {
   .student-name { flex-basis: 100%; order: 2; }
   .mark-buttons { order: 3; width: 100%; justify-content: flex-end; }
   .report-filters { grid-template-columns: 1fr; }
+  /* En móvil, los encabezados de marca muestran solo la abreviatura */
+  .th-label { display: none; }
+  .th-code { margin-right: 0; }
 }
 
 /* ============================================

@@ -473,22 +473,31 @@ function renderReport(records) {
 
   // Tabla por estudiante
   html += '<div class="chart-section"><h3>Asistencia por estudiante</h3>';
-  html += '<div class="table-wrap"><table class="report-table"><thead><tr>';
-  html += '<th>#</th><th>Estudiante</th><th>Presentes</th><th>Faltas</th><th>Atrasos</th><th>Justif.</th><th>Pend.</th><th>% Asist.</th>';
+  html += '<div class="table-wrap"><table class="report-table stats-table"><thead><tr>';
+  html += '<th scope="col" class="th-num">#</th>';
+  html += '<th scope="col" class="th-student">Estudiante</th>';
+  html += '<th scope="col" class="th-num"><span class="th-code">P</span><span class="th-label">Presentes</span></th>';
+  html += '<th scope="col" class="th-num"><span class="th-code">F</span><span class="th-label">Faltas</span></th>';
+  html += '<th scope="col" class="th-num"><span class="th-code">A</span><span class="th-label">Atrasos</span></th>';
+  html += '<th scope="col" class="th-num"><span class="th-code">J</span><span class="th-label">Justif.</span></th>';
+  html += '<th scope="col" class="th-num"><span class="th-code">N</span><span class="th-label">Pend.</span></th>';
+  html += '<th scope="col" class="th-num">Total</th>';
+  html += '<th scope="col" class="th-num">% Asist.</th>';
   html += '</tr></thead><tbody>';
 
   students.forEach(st => {
     const stats = computeStudentStats(st.num, records);
     const rowPct = stats.total > 0 ? Math.round((stats.P / stats.total) * 100) : 0;
     html += `<tr>`;
-    html += `<td>${st.num}</td>`;
+    html += `<td class="num">${st.num}</td>`;
     html += `<td class="student-cell">${st.name}</td>`;
-    html += `<td>${stats.P}</td>`;
-    html += `<td>${stats.F}</td>`;
-    html += `<td>${stats.A}</td>`;
-    html += `<td>${stats.J}</td>`;
-    html += `<td>${stats.N}</td>`;
-    html += `<td><span class="pct-badge" style="background:${pctColor(rowPct)}">${rowPct}%</span></td>`;
+    html += `<td class="num">${stats.P}</td>`;
+    html += `<td class="num">${stats.F}</td>`;
+    html += `<td class="num">${stats.A}</td>`;
+    html += `<td class="num">${stats.J}</td>`;
+    html += `<td class="num">${stats.N}</td>`;
+    html += `<td class="num total-cell">${stats.total}</td>`;
+    html += `<td class="num"><span class="pct-badge" style="background:${pctColor(rowPct)}">${rowPct}%</span></td>`;
     html += `</tr>`;
   });
 
@@ -499,15 +508,15 @@ function renderReport(records) {
     const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
     const num = parseInt(reportStudent, 10);
     html += '<div class="chart-section"><h3>Detalle de asistencia por fecha</h3>';
-    html += '<div class="table-wrap"><table class="report-table"><thead><tr><th>Fecha</th><th>Marca</th></tr></thead><tbody>';
+    html += '<div class="table-wrap"><table class="report-table detail-table"><thead><tr><th scope="col">Fecha</th><th scope="col">Marca</th></tr></thead><tbody>';
     records.forEach(r => {
       const parts = r.date.split('-');
       const fecha = `${parseInt(parts[2], 10)} ${MESES[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
       const m = r.marks[num];
       if (m && MARK_LABELS[m]) {
-        html += `<tr><td>${fecha}</td><td style="color:${MARK_COLORS[m]}">${MARK_LABELS[m]}</td></tr>`;
+        html += `<tr><td>${fecha}</td><td><span class="mark-badge mark-${m}">${MARK_LABELS[m]}</span></td></tr>`;
       } else {
-        html += `<tr><td>${fecha}</td><td style="color:#999">Sin registro</td></tr>`;
+        html += `<tr><td>${fecha}</td><td><span class="mark-badge mark-none">Sin registro</span></td></tr>`;
       }
     });
     html += '</tbody></table></div></div>';
