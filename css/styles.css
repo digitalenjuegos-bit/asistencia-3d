@@ -794,6 +794,18 @@ body {
   .report-filters { grid-template-columns: 1fr; }
 }
 
+/* ============================================
+   FOOTER
+   ============================================ */
+.app-footer {
+  text-align: center;
+  padding: 18px 16px 26px;
+  color: var(--text-soft, #b9b9cc);
+  font-size: 0.85rem;
+  letter-spacing: 0.3px;
+}
+.app-footer p { margin: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
