@@ -65,6 +65,13 @@ function $$(sel) { return document.querySelectorAll(sel); }
 
 // --- Inicialización ---
 document.addEventListener('DOMContentLoaded', function() {
+  // Inicializar Firebase ANTES de cualquier uso de la base de datos.
+  // Sin initializeApp, window.firebase.database() lanza un error síncrono
+  // ("No Firebase App '[DEFAULT]' has been created") que rompe loadAttendance()
+  // y deja la lista de estudiantes vacía.
+  if (window.FIREBASE_CONFIGURED && window.firebase && !window.firebase.apps.length) {
+    window.firebase.initializeApp(window.FIREBASE_CONFIG);
+  }
   configurarNavegacion();
   poblarCursos();
   poblarReportes();
@@ -142,7 +149,6 @@ function poblarReportes() {
 // --- Cambio de curso ---
 function onCourseChange() {
   state.course = $('#courseSelect').value;
-  state.date = '';
   state.marks = {};
   state.hasRecord = false;
   if (!state.course) {
@@ -152,6 +158,14 @@ function onCourseChange() {
   }
   const today = new Date().toISOString().split('T')[0];
   $('#dateSelect').value = today;
+  loadAttendance();
+}
+
+// --- Cambio de fecha (sin resetear el curso ni forzar la fecha de hoy) ---
+function onDateChange() {
+  if (!state.course) return;
+  state.marks = {};
+  state.hasRecord = false;
   loadAttendance();
 }
 
@@ -537,6 +551,7 @@ function showToast(msg) {
 
 // --- Exponer funciones globales para el HTML ---
 window.onCourseChange = onCourseChange;
+window.onDateChange = onDateChange;
 window.onReportCourseChange = onReportCourseChange;
 window.onReportStudentChange = onReportStudentChange;
 window.onReportDateChange = onReportDateChange;
