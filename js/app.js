@@ -104,9 +104,10 @@ function initTilt3D() {
 }
 
 // --- Membrete institucional para el PDF (hoja membretada) ---
-// Envuelve las vistas en una tabla cuyo thead (logotipo + nombre) se repite
-// en cada página al imprimir (display:table-header-group en @media print).
-// En pantalla la tabla no genera caja (display:contents en styles.css),
+// Envuelve las vistas en una tabla cuyo thead se repite en cada página al
+// imprimir (display:table-header-group en @media print). El thead tiene tres
+// celdas: logotipo a la izquierda, título centrado y fecha de generación a la
+// derecha. En pantalla la tabla no genera caja (display:contents en styles.css),
 // así el layout visual no cambia y no hace falta tocar index.html.
 function initPrintHeader() {
   if (document.querySelector('.print-layout')) return;
@@ -116,17 +117,34 @@ function initPrintHeader() {
   const table = document.createElement('table');
   table.className = 'print-layout';
   table.innerHTML =
-    '<thead><tr><td class="print-header-cell">' +
-    '<div class="print-header">' +
+    '<thead><tr>' +
+    '<td class="print-header-cell print-cell-left">' +
     '<img src="img/logo-logos-academy.png" alt="Logotipo Logos Academy" class="print-logo">' +
-    '<div class="print-header-text">' +
+    '</td>' +
+    '<td class="print-header-cell print-cell-center">' +
     '<span class="print-doc">Reporte de Asistencia 2026-2027</span>' +
-    '</div></div>' +
-    '</td></tr></thead>' +
-    '<tbody><tr><td class="print-body-cell"></td></tr></tbody>';
+    '</td>' +
+    '<td class="print-header-cell print-cell-right">' +
+    '<span class="print-date"></span>' +
+    '</td>' +
+    '</tr></thead>' +
+    '<tbody><tr><td class="print-body-cell" colspan="3"></td></tr></tbody>';
 
   views.parentNode.insertBefore(table, views);
   table.querySelector('.print-body-cell').appendChild(views);
+  updatePrintDate();
+}
+
+// Fecha de generación del reporte en el membrete (hora local del navegador,
+// Ecuador GMT-5). Se actualiza al cargar y de nuevo justo antes de imprimir.
+function updatePrintDate() {
+  const el = document.querySelector('.print-date');
+  if (!el) return;
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2, '0');
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  el.textContent = 'Generado el ' + dd + '/' + mm + '/' + yyyy;
 }
 
 // --- Navegación ---
@@ -573,6 +591,7 @@ function exportPDF() {
     showToast('No hay datos para exportar');
     return;
   }
+  updatePrintDate();
   window.print();
 }
 

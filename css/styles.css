@@ -166,44 +166,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* Separadores "·" con color de acento */
-.sub-sep {
-  color: var(--accent);
-  font-weight: 700;
-  margin: 0 5px;
-}
-
-/* Badge de estado "Nube activa" (Firebase RTDB) */
-.cloud-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(0, 184, 148, 0.12);
-  border: 1px solid rgba(0, 184, 148, 0.35);
-  color: #00e0a8;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.4px;
-  vertical-align: middle;
-  box-shadow: 0 0 14px rgba(0, 184, 148, 0.18);
-}
-
-.cloud-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--success);
-  box-shadow: 0 0 8px rgba(0, 184, 148, 0.8);
-  animation: cloudPulse 2s ease-in-out infinite;
-}
-
-@keyframes cloudPulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.6; }
-}
-
 .app-logo {
   display: block;
   width: 170px;
@@ -765,9 +727,6 @@ body {
 .print-layout tbody tr { display: contents; }
 .print-layout tbody td { display: contents; }
 
-/* Membrete institucional: oculto en pantalla (refuerzo; el thead ya está oculto) */
-.print-header { display: none; }
-
 @media print {
   .animated-bg, .main-nav, .btn-row, .btn-export, .report-filters, #toast, .app-header {
     display: none !important;
@@ -794,7 +753,9 @@ body {
   }
 
   /* Hoja membretada: el thead se repite en cada página del PDF.
-     El logo (escudo azul marino + dorado sobre fondo blanco) contrasta bien sobre papel. */
+     Tres celdas: logotipo a la izquierda, título centrado y fecha de
+     generación a la derecha (balance visual). La línea divisoria inferior
+     separa el membrete del contenido del reporte. */
   .print-layout {
     display: table;
     width: 100%;
@@ -808,35 +769,25 @@ body {
   .print-header-cell {
     padding: 12px 0 10px;
     border-bottom: 2px solid #16213e;
-    text-align: center;
+    vertical-align: middle;
   }
-  .print-header {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-  }
+  .print-cell-left { width: 25%; text-align: left; }
+  .print-cell-center { width: 50%; text-align: center; }
+  .print-cell-right { width: 25%; text-align: right; }
   .print-logo {
     width: 150px;
     height: auto;
   }
-  .print-header-text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.3;
-  }
-  .print-school {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #16213e;
-    letter-spacing: 0.4px;
-  }
   .print-doc {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #6c5ce7;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #16213e;
     letter-spacing: 0.3px;
+  }
+  .print-date {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
   }
   @page { margin: 0.75in; }
 }
