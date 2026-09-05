@@ -18,8 +18,8 @@ let reportStudent = '';
 let reportFrom = '';
 let reportTo = '';
 
-const MARK_LABELS = { P: 'Presente', F: 'Falta', A: 'Atraso', J: 'Justificado' };
-const MARK_COLORS = { P: '#00b894', F: '#d63031', A: '#fdcb6e', J: '#6c5ce7' };
+const MARK_LABELS = { P: 'Presente', F: 'Falta', A: 'Atraso', J: 'Justificado', N: 'Pendiente' };
+const MARK_COLORS = { P: '#00b894', F: '#d63031', A: '#fdcb6e', J: '#6c5ce7', N: '#9ca3af' };
 
 // --- Persistencia ---
 // Si Firebase está configurado, guarda en RTDB. Si no, usa localStorage.
@@ -228,6 +228,7 @@ function renderStudentList(courseData, marks) {
         ${mkBtn('F', current)}
         ${mkBtn('A', current)}
         ${mkBtn('J', current)}
+        ${mkBtn('N', current)}
       </div>
     `;
     row.querySelectorAll('.mark-btn').forEach(btn => {
@@ -404,7 +405,7 @@ function renderReport(records) {
   }
 
   // Resumen: por curso completo o por estudiante filtrado
-  let summary = { P: 0, F: 0, A: 0, J: 0, total: 0 };
+  let summary = { P: 0, F: 0, A: 0, J: 0, N: 0, total: 0 };
   if (reportStudent) {
     summary = computeStudentStats(parseInt(reportStudent), records);
   } else {
@@ -427,6 +428,7 @@ function renderReport(records) {
   html += `<div class="summary-card"><div class="summary-value" style="color:${MARK_COLORS.F}">${summary.F}</div><div class="summary-label">Faltas</div></div>`;
   html += `<div class="summary-card"><div class="summary-value" style="color:${MARK_COLORS.A}">${summary.A}</div><div class="summary-label">Atrasos</div></div>`;
   html += `<div class="summary-card"><div class="summary-value" style="color:${MARK_COLORS.J}">${summary.J}</div><div class="summary-label">Justificados</div></div>`;
+  html += `<div class="summary-card"><div class="summary-value" style="color:${MARK_COLORS.N}">${summary.N}</div><div class="summary-label">Pendientes</div></div>`;
   html += '</div>';
 
   // Gráfico de barras por tipo de marca
@@ -437,7 +439,7 @@ function renderReport(records) {
   // Tabla por estudiante
   html += '<div class="chart-section"><h3>Asistencia por estudiante</h3>';
   html += '<div class="table-wrap"><table class="report-table"><thead><tr>';
-  html += '<th>#</th><th>Estudiante</th><th>Presentes</th><th>Faltas</th><th>Atrasos</th><th>Justif.</th><th>% Asist.</th>';
+  html += '<th>#</th><th>Estudiante</th><th>Presentes</th><th>Faltas</th><th>Atrasos</th><th>Justif.</th><th>Pend.</th><th>% Asist.</th>';
   html += '</tr></thead><tbody>';
 
   students.forEach(st => {
@@ -450,6 +452,7 @@ function renderReport(records) {
     html += `<td>${stats.F}</td>`;
     html += `<td>${stats.A}</td>`;
     html += `<td>${stats.J}</td>`;
+    html += `<td>${stats.N}</td>`;
     html += `<td><span class="pct-badge" style="background:${pctColor(rowPct)}">${rowPct}%</span></td>`;
     html += `</tr>`;
   });
@@ -480,12 +483,13 @@ function renderReport(records) {
 
 // --- Calcular estadísticas de un estudiante ---
 function computeStudentStats(num, records) {
-  const stats = { P: 0, F: 0, A: 0, J: 0, total: 0 };
+  const stats = { P: 0, F: 0, A: 0, J: 0, N: 0, total: 0 };
   records.forEach(r => {
     const m = r.marks[num];
     if (m && stats[m] !== undefined) {
       stats[m]++;
-      stats.total++;
+      // La marca N (Pendiente) NO cuenta en el total de asistencia
+      if (m !== 'N') stats.total++;
     }
   });
   return stats;
@@ -500,12 +504,13 @@ function pctColor(pct) {
 
 // --- Gráfico de barras (CSS puro) ---
 function renderBarChart(summary) {
-  const max = Math.max(summary.P, summary.F, summary.A, summary.J, 1);
+  const max = Math.max(summary.P, summary.F, summary.A, summary.J, summary.N, 1);
   const types = [
     { key: 'P', label: 'Presentes', color: MARK_COLORS.P },
     { key: 'F', label: 'Faltas', color: MARK_COLORS.F },
     { key: 'A', label: 'Atrasos', color: MARK_COLORS.A },
-    { key: 'J', label: 'Justif.', color: MARK_COLORS.J }
+    { key: 'J', label: 'Justif.', color: MARK_COLORS.J },
+    { key: 'N', label: 'Pend.', color: MARK_COLORS.N }
   ];
 
   let html = '<div class="bar-chart">';
@@ -528,11 +533,11 @@ function exportCSV() {
     return;
   }
   const courseData = COURSES[reportCourse];
-  let csv = 'Numero,Estudiante,Presentes,Faltas,Atrasos,Justificados,Porcentaje_Asistencia\n';
+  let csv = 'Numero,Estudiante,Presentes,Faltas,Atrasos,Justificados,Pendientes,Porcentaje_Asistencia\n';
   courseData.students.forEach(st => {
     const stats = computeStudentStats(st.num, reportData);
     const pct = stats.total > 0 ? Math.round((stats.P / stats.total) * 100) : 0;
-    csv += `${st.num},"${st.name}",${stats.P},${stats.F},${stats.A},${stats.J},${pct}%\n`;
+    csv += `${st.num},"${st.name}",${stats.P},${stats.F},${stats.A},${stats.J},${stats.N},${pct}%\n`;
   });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
