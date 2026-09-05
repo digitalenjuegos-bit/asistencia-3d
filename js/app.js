@@ -76,7 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
   poblarCursos();
   poblarReportes();
   initTilt3D();
-  initStorageBadge();
   initPrintHeader();
   console.log('Asistencia 3D inicializada OK');
 });
@@ -104,18 +103,6 @@ function initTilt3D() {
   });
 }
 
-// --- Indicador de modo de almacenamiento ---
-function initStorageBadge() {
-  const sub = $('.app-subtitle');
-  if (sub) {
-    if (window.FIREBASE_CONFIGURED) {
-      sub.textContent = 'Registro de asistencia · Logos Academy · Guayaquil · Nube activa';
-    } else {
-      sub.textContent = 'Registro de asistencia · Logos Academy · Guayaquil · Modo local (configura Firebase en js/config.js)';
-    }
-  }
-}
-
 // --- Membrete institucional para el PDF (hoja membretada) ---
 // Envuelve las vistas en una tabla cuyo thead (logotipo + nombre) se repite
 // en cada página al imprimir (display:table-header-group en @media print).
@@ -133,7 +120,6 @@ function initPrintHeader() {
     '<div class="print-header">' +
     '<img src="img/logo-logos-academy.png" alt="Logotipo Logos Academy" class="print-logo">' +
     '<div class="print-header-text">' +
-    '<span class="print-school">Logos Academy</span>' +
     '<span class="print-doc">Reporte de Asistencia 2026-2027</span>' +
     '</div></div>' +
     '</td></tr></thead>' +
