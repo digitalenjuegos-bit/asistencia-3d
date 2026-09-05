@@ -106,8 +106,9 @@ function initTilt3D() {
 // --- Membrete institucional para el PDF (hoja membretada) ---
 // Envuelve las vistas en una tabla cuyo thead se repite en cada página al
 // imprimir (display:table-header-group en @media print). El thead tiene tres
-// celdas: logotipo a la izquierda, título centrado y fecha de generación a la
-// derecha. En pantalla la tabla no genera caja (display:contents en styles.css),
+// celdas: logotipo a la izquierda, título centrado y, a la derecha, el nombre
+// del estudiante filtrado y la fecha de generación. En pantalla la tabla no
+// genera caja (display:contents en styles.css),
 // así el layout visual no cambia y no hace falta tocar index.html.
 function initPrintHeader() {
   if (document.querySelector('.print-layout')) return;
@@ -125,6 +126,7 @@ function initPrintHeader() {
     '<span class="print-doc">Reporte de Asistencia 2026-2027</span>' +
     '</td>' +
     '<td class="print-header-cell print-cell-right">' +
+    '<span class="print-student"></span>' +
     '<span class="print-date"></span>' +
     '</td>' +
     '</tr></thead>' +
@@ -133,6 +135,7 @@ function initPrintHeader() {
   views.parentNode.insertBefore(table, views);
   table.querySelector('.print-body-cell').appendChild(views);
   updatePrintDate();
+  updatePrintStudent();
 }
 
 // Fecha de generación del reporte en el membrete (hora local del navegador,
@@ -144,7 +147,22 @@ function updatePrintDate() {
   const dd = String(now.getDate()).padStart(2, '0');
   const mm = String(now.getMonth() + 1).padStart(2, '0');
   const yyyy = now.getFullYear();
-  el.textContent = 'Generado el ' + dd + '/' + mm + '/' + yyyy;
+  el.textContent = 'Fecha del reporte: ' + dd + '/' + mm + '/' + yyyy;
+}
+
+// Nombre del estudiante filtrado en el membrete. Si no hay estudiante
+// seleccionado (filtro "Todos"), se indica "Estudiante: Todos". Se actualiza
+// al cargar y de nuevo justo antes de imprimir, porque el filtro puede cambiar.
+function updatePrintStudent() {
+  const el = document.querySelector('.print-student');
+  if (!el) return;
+  const sel = $('#reportStudent');
+  let name = 'Todos';
+  if (sel && sel.selectedIndex >= 0) {
+    const opt = sel.options[sel.selectedIndex];
+    if (opt && opt.value) name = opt.textContent.trim();
+  }
+  el.textContent = 'Estudiante: ' + name;
 }
 
 // --- Navegación ---
@@ -475,7 +493,6 @@ function renderReport(records) {
   html += '<div class="chart-section"><h3>Asistencia por estudiante</h3>';
   html += '<div class="table-wrap"><table class="report-table stats-table"><thead><tr>';
   html += '<th scope="col" class="th-num">#</th>';
-  html += '<th scope="col" class="th-student">Estudiante</th>';
   html += '<th scope="col" class="th-num"><span class="th-code">P</span><span class="th-label">Presentes</span></th>';
   html += '<th scope="col" class="th-num"><span class="th-code">F</span><span class="th-label">Faltas</span></th>';
   html += '<th scope="col" class="th-num"><span class="th-code">A</span><span class="th-label">Atrasos</span></th>';
@@ -490,7 +507,6 @@ function renderReport(records) {
     const rowPct = stats.total > 0 ? Math.round((stats.P / stats.total) * 100) : 0;
     html += `<tr>`;
     html += `<td class="num">${st.num}</td>`;
-    html += `<td class="student-cell">${st.name}</td>`;
     html += `<td class="num">${stats.P}</td>`;
     html += `<td class="num">${stats.F}</td>`;
     html += `<td class="num">${stats.A}</td>`;
@@ -601,6 +617,7 @@ function exportPDF() {
     return;
   }
   updatePrintDate();
+  updatePrintStudent();
   window.print();
 }
 

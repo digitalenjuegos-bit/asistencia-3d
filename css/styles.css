@@ -659,7 +659,7 @@ body {
 /* La tabla de estadísticas necesita ancho mínimo para que en móvil
    el scroll horizontal del contenedor haga su trabajo. */
 .report-table.stats-table {
-  min-width: 660px;
+  min-width: 560px;
 }
 
 .report-table thead th {
@@ -703,14 +703,6 @@ body {
 .report-table tbody tr:hover td {
   background: rgba(108, 92, 231, 0.10);
   color: var(--text);
-}
-
-.student-cell {
-  font-weight: 500;
-  color: var(--text) !important;
-  max-width: 260px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .total-cell {
@@ -864,7 +856,14 @@ body {
     color: #16213e;
     letter-spacing: 0.3px;
   }
+  .print-student {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #16213e;
+  }
   .print-date {
+    display: block;
     font-size: 0.8rem;
     font-weight: 500;
     color: #555;
