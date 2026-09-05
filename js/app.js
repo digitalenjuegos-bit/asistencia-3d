@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- Efecto tilt 3D sobre tarjetas ---
 function initTilt3D() {
   $$('.card-3d').forEach(card => {
+    // Tarjetas con data-no-tilt no se inclinan (evita mareo en listas largas)
+    if (card.hasAttribute('data-no-tilt')) return;
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
