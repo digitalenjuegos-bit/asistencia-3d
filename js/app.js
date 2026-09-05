@@ -412,7 +412,8 @@ function renderReport(records) {
     records.forEach(r => {
       Object.values(r.marks).forEach(m => {
         if (summary[m] !== undefined) summary[m]++;
-        if (m !== 'N') summary.total++;
+        // J (Justificado) y N (Pendiente) NO cuentan en el total de asistencia
+        if (m !== 'N' && m !== 'J') summary.total++;
       });
     });
   }
@@ -488,8 +489,8 @@ function computeStudentStats(num, records) {
     const m = r.marks[num];
     if (m && stats[m] !== undefined) {
       stats[m]++;
-      // La marca N (Pendiente) NO cuenta en el total de asistencia
-      if (m !== 'N') stats.total++;
+      // Las marcas N (Pendiente) y J (Justificado) NO cuentan en el total de asistencia
+      if (m !== 'N' && m !== 'J') stats.total++;
     }
   });
   return stats;
