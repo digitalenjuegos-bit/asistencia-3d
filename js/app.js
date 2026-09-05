@@ -412,7 +412,7 @@ function renderReport(records) {
     records.forEach(r => {
       Object.values(r.marks).forEach(m => {
         if (summary[m] !== undefined) summary[m]++;
-        summary.total++;
+        if (m !== 'N') summary.total++;
       });
     });
   }
