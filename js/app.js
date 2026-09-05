@@ -456,6 +456,25 @@ function renderReport(records) {
 
   html += '</tbody></table></div></div>';
 
+  // Detalle de asistencia por fecha (solo cuando hay estudiante filtrado)
+  if (reportStudent) {
+    const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const num = parseInt(reportStudent, 10);
+    html += '<div class="chart-section"><h3>Detalle de asistencia por fecha</h3>';
+    html += '<div class="table-wrap"><table class="report-table"><thead><tr><th>Fecha</th><th>Marca</th></tr></thead><tbody>';
+    records.forEach(r => {
+      const parts = r.date.split('-');
+      const fecha = `${parseInt(parts[2], 10)} ${MESES[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
+      const m = r.marks[num];
+      if (m && MARK_LABELS[m]) {
+        html += `<tr><td>${fecha}</td><td style="color:${MARK_COLORS[m]}">${MARK_LABELS[m]}</td></tr>`;
+      } else {
+        html += `<tr><td>${fecha}</td><td style="color:#999">Sin registro</td></tr>`;
+      }
+    });
+    html += '</tbody></table></div></div>';
+  }
+
   content.innerHTML = html;
 }
 

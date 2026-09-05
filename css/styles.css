@@ -693,6 +693,12 @@ body {
   .report-table th { background: #eee; color: #000; }
   .report-table td { color: #000; border-color: #ddd; }
   .summary-value { -webkit-text-fill-color: #000; color: #000; }
+  /* Barras: sin animación (la altura inline final queda fija) y con colores de fondo impresos */
+  .bar { animation: none !important; }
+  .bar, .pct-badge, .summary-card, .report-table th {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }
 
 /* ============================================
