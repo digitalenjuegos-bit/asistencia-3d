@@ -10,6 +10,7 @@
   --bg-card-hover: #20203a;
   --text: #ffffff;
   --text-dim: #a0a0b0;
+  --text-soft: #b9b9cc;
   --primary: #6c5ce7;
   --primary-glow: rgba(108, 92, 231, 0.5);
   --secondary: #00cec9;
@@ -135,11 +136,15 @@ body {
 /* ============================================
    TÍTULOS
    ============================================ */
+.app-header {
+  text-align: center;
+}
+
 .app-title {
   text-align: center;
   font-size: 2.2rem;
   font-weight: 800;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -154,16 +159,75 @@ body {
 
 .app-subtitle {
   text-align: center;
-  color: var(--text-dim);
-  font-size: 1rem;
-  margin-bottom: 30px;
+  color: var(--text-soft);
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-bottom: 20px;
+}
+
+/* Separadores "·" con color de acento */
+.sub-sep {
+  color: var(--accent);
+  font-weight: 700;
+  margin: 0 5px;
+}
+
+/* Badge de estado "Nube activa" (Firebase RTDB) */
+.cloud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(0, 184, 148, 0.12);
+  border: 1px solid rgba(0, 184, 148, 0.35);
+  color: #00e0a8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  vertical-align: middle;
+  box-shadow: 0 0 14px rgba(0, 184, 148, 0.18);
+}
+
+.cloud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(0, 184, 148, 0.8);
+  animation: cloudPulse 2s ease-in-out infinite;
+}
+
+@keyframes cloudPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
 }
 
 .app-logo {
   display: block;
   width: 170px;
   height: auto;
-  margin: 0 auto 14px;
+  margin: 0 auto 18px;
+  filter: drop-shadow(0 0 22px rgba(108, 92, 231, 0.35));
+  animation: logoFloat 6s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Línea divisoria sutil bajo el bloque de título */
+.app-header::after {
+  content: '';
+  display: block;
+  width: 140px;
+  height: 2px;
+  margin: 0 auto 28px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), var(--accent), transparent);
+  opacity: 0.55;
 }
 
 .section-title {
@@ -718,6 +782,9 @@ body {
    ============================================ */
 @media (max-width: 768px) {
   .app-title { font-size: 1.6rem; }
+  .app-logo { width: 120px; }
+  .app-subtitle { font-size: 0.95rem; }
+  .app-header::after { width: 100px; }
   .main-nav { flex-wrap: wrap; gap: 8px; padding: 14px 10px; }
   .nav-btn { padding: 10px 14px; font-size: 0.8rem; }
   .config-row { grid-template-columns: 1fr; }
