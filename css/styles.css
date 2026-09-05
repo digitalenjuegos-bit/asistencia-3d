@@ -662,6 +662,11 @@ body {
   min-width: 560px;
 }
 
+/* El detalle por fecha también conserva su estructura en pantallas angostas */
+.report-table.detail-table {
+  min-width: 340px;
+}
+
 .report-table thead th {
   position: sticky;
   top: 0;
@@ -783,11 +788,16 @@ body {
 /* Envoltorio de impresión: en pantalla no genera caja (display:contents),
    al imprimir se convierte en tabla para que el membrete (thead) se repita
    en cada página del PDF. */
+/* IMPORTANTE: los selectores usan hijo directo (>) para afectar SOLO la
+   estructura inmediata del membrete. Con selectores de descendiente
+   (.print-layout tbody td) se rompían las tablas anidadas del contenido
+   (detalle por fecha, estadísticas): sus celdas recibían display:contents
+   y el texto fluía pegado ("13 may 2026Presente..."). */
 .print-layout { display: contents; }
-.print-layout thead { display: none; }
-.print-layout tbody { display: contents; }
-.print-layout tbody tr { display: contents; }
-.print-layout tbody td { display: contents; }
+.print-layout > thead { display: none; }
+.print-layout > tbody { display: contents; }
+.print-layout > tbody > tr { display: contents; }
+.print-layout > tbody > tr > td { display: contents; }
 
 @media print {
   .animated-bg, .main-nav, .btn-row, .btn-export, .report-filters, #toast, .app-header {
@@ -833,10 +843,10 @@ body {
     width: 100%;
     border-collapse: collapse;
   }
-  .print-layout thead { display: table-header-group; }
-  .print-layout tbody { display: table-row-group; }
-  .print-layout tbody tr { display: table-row; }
-  .print-layout tbody td { display: table-cell; padding: 0; }
+  .print-layout > thead { display: table-header-group; }
+  .print-layout > tbody { display: table-row-group; }
+  .print-layout > tbody > tr { display: table-row; }
+  .print-layout > tbody > tr > td { display: table-cell; padding: 0; }
 
   .print-header-cell {
     padding: 12px 0 10px;

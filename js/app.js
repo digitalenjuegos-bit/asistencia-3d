@@ -524,15 +524,15 @@ function renderReport(records) {
     const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
     const num = parseInt(reportStudent, 10);
     html += '<div class="chart-section"><h3>Detalle de asistencia por fecha</h3>';
-    html += '<div class="table-wrap"><table class="report-table detail-table"><thead><tr><th scope="col">Fecha</th><th scope="col">Marca</th></tr></thead><tbody>';
-    records.forEach(r => {
+    html += '<div class="table-wrap"><table class="report-table detail-table"><thead><tr><th scope="col" class="th-num">#</th><th scope="col">Fecha</th><th scope="col">Marca</th></tr></thead><tbody>';
+    records.forEach((r, i) => {
       const parts = r.date.split('-');
       const fecha = `${parseInt(parts[2], 10)} ${MESES[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
       const m = r.marks[num];
       if (m && MARK_LABELS[m]) {
-        html += `<tr><td>${fecha}</td><td><span class="mark-badge mark-${m}">${MARK_LABELS[m]}</span></td></tr>`;
+        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><span class="mark-badge mark-${m}">${MARK_LABELS[m]}</span></td></tr>`;
       } else {
-        html += `<tr><td>${fecha}</td><td><span class="mark-badge mark-none">Sin registro</span></td></tr>`;
+        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><span class="mark-badge mark-none">Sin registro</span></td></tr>`;
       }
     });
     html += '</tbody></table></div></div>';
