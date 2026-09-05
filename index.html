@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistencia 3D - Logos Academy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="animated-bg"></div>
+
+  <!-- Navegación principal -->
+  <nav class="main-nav" aria-label="Navegación principal">
+    <button class="nav-btn active" data-tab="asistencia" aria-selected="true">
+      <span class="nav-icon" aria-hidden="true">&#9745;</span>
+      <span class="nav-label">Asistencia</span>
+    </button>
+    <button class="nav-btn" data-tab="reportes" aria-selected="false">
+      <span class="nav-icon" aria-hidden="true">&#128202;</span>
+      <span class="nav-label">Reportes</span>
+    </button>
+  </nav>
+
+  <!-- Vistas -->
+  <div class="views">
+    <!-- Vista: Asistencia -->
+    <div class="view active" id="view-asistencia">
+      <div class="container">
+        <h1 class="app-title">Asistencia 3D</h1>
+        <p class="app-subtitle">Registro de asistencia · Logos Academy · Guayaquil</p>
+
+        <!-- Panel de configuración -->
+        <section class="card-3d" aria-label="Configuración de la clase">
+          <h2 class="section-title">
+            <span class="number">1</span>
+            Configuración de la clase
+          </h2>
+          <div class="config-row">
+            <div class="config-field">
+              <label for="courseSelect">Curso</label>
+              <select id="courseSelect" aria-label="Seleccionar curso" onchange="onCourseChange()"></select>
+            </div>
+            <div class="config-field">
+              <label for="dateSelect">Fecha</label>
+              <input type="date" id="dateSelect" aria-label="Fecha de la clase" onchange="onCourseChange()">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="saveBtn" class="btn-save" aria-label="Guardar asistencia" onclick="saveAttendance()">
+              <span aria-hidden="true">&#10003;</span> Guardar
+            </button>
+            <button id="markAllBtn" class="btn-mark" aria-label="Marcar todos como presentes" onclick="markAllPresent()">
+              <span aria-hidden="true">&#128203;</span> Marcar todos presentes
+            </button>
+          </div>
+        </section>
+
+        <!-- Lista de estudiantes -->
+        <section class="card-3d" aria-label="Lista de estudiantes">
+          <h2 class="section-title">
+            <span class="number">2</span>
+            Estudiantes
+          </h2>
+          <div id="studentList">
+            <div class="empty-state">
+              <span class="icon">&#128203;</span>
+              <p>Selecciona un curso para comenzar</p>
+            </div>
+          </div>
+          <div id="infoBar" class="info-bar" aria-live="polite"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Vista: Reportes -->
+    <div class="view" id="view-reportes">
+      <div class="container">
+        <h1 class="app-title">Reportes de Asistencia</h1>
+        <p class="app-subtitle">Estadísticas por curso, estudiante y rango de fechas</p>
+
+        <section class="card-3d" aria-label="Filtros de reporte">
+          <h2 class="section-title">
+            <span class="number">1</span>
+            Filtros
+          </h2>
+          <div class="report-filters">
+            <div class="filter-group">
+              <label for="reportCourse">Curso</label>
+              <select id="reportCourse" aria-label="Curso para el reporte" onchange="onReportCourseChange()"></select>
+            </div>
+            <div class="filter-group">
+              <label for="reportStudent">Estudiante</label>
+              <select id="reportStudent" aria-label="Estudiante para el reporte" onchange="onReportStudentChange()">
+                <option value="">-- Todos los estudiantes --</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="reportDateFrom">Desde</label>
+              <input type="date" id="reportDateFrom" aria-label="Fecha inicial del reporte" onchange="onReportDateChange()">
+            </div>
+            <div class="filter-group">
+              <label for="reportDateTo">Hasta</label>
+              <input type="date" id="reportDateTo" aria-label="Fecha final del reporte" onchange="onReportDateChange()">
+            </div>
+          </div>
+          <div class="btn-row">
+            <button id="btnExportCSV" class="btn-export" aria-label="Exportar a CSV" onclick="exportCSV()">
+              <span aria-hidden="true">&#128193;</span> Exportar CSV
+            </button>
+            <button id="btnExportPDF" class="btn-export pdf" aria-label="Exportar a PDF" onclick="exportPDF()">
+              <span aria-hidden="true">&#128274;</span> Exportar PDF
+            </button>
+          </div>
+        </section>
+
+        <!-- Contenido del reporte -->
+        <section class="card-3d" aria-label="Resultados del reporte">
+          <h2 class="section-title">
+            <span class="number">2</span>
+            Resultados
+          </h2>
+          <div id="reportContent" class="report-content">
+            <div class="empty-state">
+              <span class="icon">&#128202;</span>
+              <p>Selecciona un curso para ver el reporte</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (compat) - solo se usa si FIREBASE_CONFIGURED es true -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <script src="js/data.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
