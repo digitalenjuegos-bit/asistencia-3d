@@ -18,13 +18,13 @@
 // (guarda en localStorage del navegador) para que puedas probarla.
 
 const FIREBASE_CONFIG = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyD-iRwZ9AUya0F7tkU4uQUWE7eJbgeFZwM",
+  authDomain: "coevaluacionhistoria.firebaseapp.com",
+  databaseURL: "https://coevaluacionhistoria-default-rtdb.firebaseio.com",
+  projectId: "coevaluacionhistoria",
+  storageBucket: "coevaluacionhistoria.firebasestorage.app",
+  messagingSenderId: "878859292504",
+  appId: "1:878859292504:web:94a313961d347d1d5cdf2d"
 };
 
 // Ruta raíz en la Realtime Database donde se guarda la asistencia
