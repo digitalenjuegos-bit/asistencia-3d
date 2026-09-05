@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
   poblarReportes();
   initTilt3D();
   initStorageBadge();
+  initPrintHeader();
   console.log('Asistencia 3D inicializada OK');
 });
 
@@ -113,6 +114,33 @@ function initStorageBadge() {
       sub.textContent = 'Registro de asistencia · Logos Academy · Guayaquil · Modo local (configura Firebase en js/config.js)';
     }
   }
+}
+
+// --- Membrete institucional para el PDF (hoja membretada) ---
+// Envuelve las vistas en una tabla cuyo thead (logotipo + nombre) se repite
+// en cada página al imprimir (display:table-header-group en @media print).
+// En pantalla la tabla no genera caja (display:contents en styles.css),
+// así el layout visual no cambia y no hace falta tocar index.html.
+function initPrintHeader() {
+  if (document.querySelector('.print-layout')) return;
+  const views = document.querySelector('.views');
+  if (!views) return;
+
+  const table = document.createElement('table');
+  table.className = 'print-layout';
+  table.innerHTML =
+    '<thead><tr><td class="print-header-cell">' +
+    '<div class="print-header">' +
+    '<img src="img/logo-logos-academy.png" alt="Logotipo Logos Academy" class="print-logo">' +
+    '<div class="print-header-text">' +
+    '<span class="print-school">Logos Academy</span>' +
+    '<span class="print-doc">Reporte de Asistencia 2026-2027</span>' +
+    '</div></div>' +
+    '</td></tr></thead>' +
+    '<tbody><tr><td class="print-body-cell"></td></tr></tbody>';
+
+  views.parentNode.insertBefore(table, views);
+  table.querySelector('.print-body-cell').appendChild(views);
 }
 
 // --- Navegación ---

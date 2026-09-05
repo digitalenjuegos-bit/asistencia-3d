@@ -756,8 +756,25 @@ body {
 /* ============================================
    IMPRESIÓN (PDF)
    ============================================ */
+/* Envoltorio de impresión: en pantalla no genera caja (display:contents),
+   al imprimir se convierte en tabla para que el membrete (thead) se repita
+   en cada página del PDF. */
+.print-layout { display: contents; }
+.print-layout thead { display: none; }
+.print-layout tbody { display: contents; }
+.print-layout tbody tr { display: contents; }
+.print-layout tbody td { display: contents; }
+
+/* Membrete institucional: oculto en pantalla (refuerzo; el thead ya está oculto) */
+.print-header { display: none; }
+
 @media print {
-  .animated-bg, .main-nav, .btn-row, .btn-export, .report-filters, #toast {
+  .animated-bg, .main-nav, .btn-row, .btn-export, .report-filters, #toast, .app-header {
+    display: none !important;
+  }
+  /* La tarjeta de filtros no aporta nada al PDF (sus controles ya se ocultan);
+     se oculta completa para que el reporte empiece directo en los resultados. */
+  #view-reportes .card-3d:first-of-type {
     display: none !important;
   }
   body { background: #fff; color: #000; }
@@ -775,6 +792,53 @@ body {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  /* Hoja membretada: el thead se repite en cada página del PDF.
+     El logo (escudo azul marino + dorado sobre fondo blanco) contrasta bien sobre papel. */
+  .print-layout {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .print-layout thead { display: table-header-group; }
+  .print-layout tbody { display: table-row-group; }
+  .print-layout tbody tr { display: table-row; }
+  .print-layout tbody td { display: table-cell; padding: 0; }
+
+  .print-header-cell {
+    padding: 12px 0 10px;
+    border-bottom: 2px solid #16213e;
+    text-align: center;
+  }
+  .print-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .print-logo {
+    width: 150px;
+    height: auto;
+  }
+  .print-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.3;
+  }
+  .print-school {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #16213e;
+    letter-spacing: 0.4px;
+  }
+  .print-doc {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c5ce7;
+    letter-spacing: 0.3px;
+  }
+  @page { margin: 0.75in; }
 }
 
 /* ============================================
