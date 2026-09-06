@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="icon" type="image/png" href="img/logo-logos-academy.png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0f0f23">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
 </head>
 <body>
   <div class="animated-bg"></div>
@@ -136,6 +141,18 @@
           </div>
         </section>
       </div>
+    </div>
+  </div>
+
+  <!-- Banner de instalación PWA (se muestra con beforeinstallprompt) -->
+  <div id="installBanner" class="install-banner" hidden>
+    <div class="install-banner-text">
+      <strong>Instala Asistencia 3D</strong>
+      <span>Acceso rápido desde tu pantalla de inicio</span>
+    </div>
+    <div class="install-banner-actions">
+      <button id="installBtn" class="btn-install" type="button">Instalar</button>
+      <button id="installDismissBtn" class="btn-ghost" type="button">Ahora no</button>
     </div>
   </div>
 

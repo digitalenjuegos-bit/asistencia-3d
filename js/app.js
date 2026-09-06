@@ -22,6 +22,9 @@ let reportTo = '';
 // termine antes de recargar, para no leer datos viejos (carrera de lectura).
 let pendingPersist = Promise.resolve();
 
+// Evento beforeinstallprompt retenido para el banner de instalación PWA.
+let deferredPrompt = null;
+
 const MARK_LABELS = { P: 'Presente', F: 'Falta', A: 'Atraso', J: 'Justificado', N: 'Pendiente' };
 const MARK_COLORS = { P: '#00b894', F: '#d63031', A: '#fdcb6e', J: '#6c5ce7', N: '#9ca3af' };
 
@@ -69,6 +72,8 @@ document.addEventListener('DOMContentLoaded', function() {
   initPrintHeader();
   restoreLastCourse();
   updateStorageBadge();
+  initInstallBanner();
+  initServiceWorker();
   console.log('Asistencia 3D inicializada OK');
 });
 
@@ -250,6 +255,72 @@ function updateStorageBadge() {
     if (r === 'ok') setBadge('Conectado a la nube', 'cloud');
     else setBadge('Sin conexión a la nube', 'offline');
   }).catch(() => setBadge('Sin conexión a la nube', 'offline'));
+}
+
+// --- Banner de instalación PWA ---
+// beforeinstallprompt solo se dispara en Chromium (Android/desktop).
+// En iOS Safari no existe: el banner simplemente nunca se muestra y la app
+// se instala desde "Añadir a pantalla de inicio" (meta tags apple-*).
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = $('#installBanner');
+  if (banner) banner.hidden = false;
+});
+
+window.addEventListener('appinstalled', () => {
+  const banner = $('#installBanner');
+  if (banner) banner.hidden = true;
+  deferredPrompt = null;
+  showToast('App instalada correctamente');
+});
+
+function initInstallBanner() {
+  const installBtn = $('#installBtn');
+  const dismissBtn = $('#installDismissBtn');
+  if (installBtn) installBtn.addEventListener('click', installApp);
+  if (dismissBtn) dismissBtn.addEventListener('click', dismissInstallBanner);
+}
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then((choice) => {
+    if (choice.outcome === 'accepted') {
+      showToast('App instalada correctamente');
+    }
+    deferredPrompt = null;
+    const banner = $('#installBanner');
+    if (banner) banner.hidden = true;
+  }).catch(() => {
+    deferredPrompt = null;
+  });
+}
+
+function dismissInstallBanner() {
+  const banner = $('#installBanner');
+  if (banner) banner.hidden = true;
+  deferredPrompt = null;
+}
+
+// --- Registro del Service Worker (PWA offline) ---
+function initServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('./sw.js').then((reg) => {
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      if (!newWorker) return;
+      newWorker.addEventListener('statechange', () => {
+        // Solo avisar cuando hay un SW previo (actualización), no en la
+        // primera instalación: controller es null en el primer registro.
+        if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+          showToast('Nueva versión disponible. Recarga la página para actualizar.');
+        }
+      });
+    });
+  }).catch((err) => {
+    console.warn('Service Worker no registrado:', err);
+  });
 }
 
 // --- Cambio de curso ---
@@ -772,7 +843,7 @@ function exportPDF() {
 }
 
 // --- Toast ---
-function showToast(msg) {
+function showToast(msg, duration) {
   let toast = $('#toast');
   if (!toast) {
     toast = document.createElement('div');
@@ -782,7 +853,7 @@ function showToast(msg) {
   toast.textContent = msg;
   toast.classList.add('show');
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+  toast._timer = setTimeout(() => toast.classList.remove('show'), duration || 2500);
 }
 
 // --- Exponer funciones globales para el HTML ---
@@ -795,3 +866,5 @@ window.markAllPresent = markAllPresent;
 window.saveAttendance = saveAttendance;
 window.exportCSV = exportCSV;
 window.exportPDF = exportPDF;
+window.installApp = installApp;
+window.dismissInstallBanner = dismissInstallBanner;
