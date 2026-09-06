@@ -39,7 +39,7 @@ const COURSES = {
     color: "#7c3aed",
     students: [
       { num: 1, name: "ARIAS SCHULDT ERIK SAMUEL" },
-      { num: 2, name: "CEDEÑO MONTOYA MARÍA AUXIIADORA" },
+      { num: 2, name: "CEDEÑO MONTOYA MARÍA AUXILIADORA" },
       { num: 3, name: "CONDE VILLACRÉS JHONNY" },
       { num: 4, name: "CONSTANTE LOOR BRIANNA" },
       { num: 5, name: "FERNÁNDEZ GONZABAY AMELIA" },
@@ -64,18 +64,18 @@ const COURSES = {
     label: "Economía IB",
     color: "#ec4899",
     students: [
-      { num: 1, name: "EMILIA TORRES" },
-      { num: 2, name: "FRANCISCO GARCIA" },
-      { num: 3, name: "DOMENICA ZUNIGA" },
-      { num: 4, name: "OLENKA BRIONES" },
-      { num: 5, name: "ESTEFANO GOMEZ" },
-      { num: 6, name: "RENATA GUEDEZ" },
-      { num: 7, name: "CESAR PLUA" },
-      { num: 8, name: "EMMILY TEJADA" },
-      { num: 9, name: "ALLISON VELASCO" },
-      { num: 10, name: "AMIR VIZCAINO" },
-      { num: 11, name: "VALERIE GAUNA" },
-      { num: 12, name: "FIORELLA GARCES" }
+      { num: 1, name: "TORRES MALDONADO EMILIA ALEJANDRA" },
+      { num: 2, name: "GARCIA GALARZA FRANCISCO XAVIER" },
+      { num: 3, name: "ZUÑIGA BETTY DOMENICA VALENTINA" },
+      { num: 4, name: "BRIONES PONCE OLENKA ELIZABETH" },
+      { num: 5, name: "GOMEZ MARRIOTT ESTEFANO" },
+      { num: 6, name: "GUEDES LOOR RENATA VICTORIA" },
+      { num: 7, name: "PLUA JARRIN CESAR EDUARDO" },
+      { num: 8, name: "TEJADA RUÍZ EMILY" },
+      { num: 9, name: "VELASCO SANTOS ALISSON ALESSANDRA" },
+      { num: 10, name: "VIZCAINO MACANCELA AMIR ANTONIO" },
+      { num: 11, name: "GAUNA CHÁVEZ VALERIE DENISSE" },
+      { num: 12, name: "GARCÉS CABEZAS FIORELLA MICHELLE" }
     ]
   },
   "Historia_1BGU_A": {
