@@ -173,6 +173,25 @@
     </div>
   </div>
 
+  <!-- Modal de edición de asistencia (registros pasados) -->
+  <div id="editModal" class="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
+      <h3 id="editModalTitle">Editar asistencia</h3>
+      <p id="editModalInfo"></p>
+      <div class="edit-marks" id="editMarks" role="group" aria-label="Seleccionar marca">
+        <button class="mark-btn" data-mark="P" type="button" title="Presente">P</button>
+        <button class="mark-btn" data-mark="F" type="button" title="Falta">F</button>
+        <button class="mark-btn" data-mark="A" type="button" title="Atraso">A</button>
+        <button class="mark-btn" data-mark="J" type="button" title="Justificado">J</button>
+        <button class="mark-btn" data-mark="N" type="button" title="Pendiente">N</button>
+      </div>
+      <div class="modal-actions">
+        <button id="editCancelBtn" class="btn-modal-cancel" type="button">Cancelar</button>
+        <button id="editSaveBtn" class="btn-modal-save" type="button">Guardar cambio</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Firebase SDK (compat) - solo se usa si FIREBASE_CONFIGURED es true -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>

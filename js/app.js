@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
   updateStorageBadge();
   initInstallBanner();
   initServiceWorker();
+  initEditModal();
   console.log('Asistencia 3D inicializada OK');
 });
 
@@ -555,6 +556,138 @@ function showConfirmModal(msg, onConfirm) {
   cancelBtn.focus();
 }
 
+// --- Edición de registros pasados (modal) ---
+// Contexto del modal abierto: curso, fecha, estudiante y marca actual.
+let editContext = null;
+
+// Fecha ISO (YYYY-MM-DD) a formato legible "13 may 2026".
+function formatDate(iso) {
+  if (!iso) return '';
+  const parts = iso.split('-');
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  return parseInt(parts[2], 10) + ' ' + MESES[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+}
+
+function openEditModal(course, date, studentNum, studentName, currentMark) {
+  editContext = {
+    course: course,
+    date: date,
+    studentNum: studentNum,
+    studentName: studentName,
+    currentMark: currentMark || null
+  };
+  const info = $('#editModalInfo');
+  if (info) info.textContent = studentName + ' — ' + formatDate(date);
+  $$('#editMarks .mark-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mark === editContext.currentMark);
+  });
+  const overlay = $('#editModal');
+  if (overlay) overlay.hidden = false;
+  const saveBtn = $('#editSaveBtn');
+  if (saveBtn) saveBtn.focus();
+}
+
+function selectEditMark(btn) {
+  $$('#editMarks .mark-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function closeEditModal() {
+  const overlay = $('#editModal');
+  if (overlay) overlay.hidden = true;
+  editContext = null;
+}
+
+function saveEditMark() {
+  if (!editContext) return;
+  const activeBtn = $('#editMarks .mark-btn.active');
+  if (!activeBtn) {
+    showToast('Selecciona una marca');
+    return;
+  }
+  const ctx = editContext;
+  const newMark = activeBtn.dataset.mark;
+  if (newMark === ctx.currentMark) {
+    closeEditModal();
+    return;
+  }
+  // Reutiliza la capa de persistencia real: carga las marcas de esa fecha,
+  // cambia la del estudiante y persiste con persistMarks (Firebase o local).
+  loadMarks(ctx.course, ctx.date).then(marks => {
+    const updated = marks || {};
+    updated[ctx.studentNum] = newMark;
+    pendingPersist = persistMarks(ctx.course, ctx.date, updated).then(() => {
+      writeEditLog({
+        course: ctx.course,
+        date: ctx.date,
+        student: ctx.studentNum,
+        oldMark: ctx.currentMark,
+        newMark: newMark
+      });
+      showToast('Asistencia actualizada');
+      closeEditModal();
+      if (state.tab === 'reportes') {
+        loadReport();
+      } else if (state.course === ctx.course && state.date === ctx.date) {
+        loadAttendance();
+      }
+    }).catch(err => {
+      showToast('Error al guardar: ' + (err && err.message ? err.message : 'desconocido'));
+    });
+  });
+}
+
+function initEditModal() {
+  const saveBtn = $('#editSaveBtn');
+  const cancelBtn = $('#editCancelBtn');
+  const marksBox = $('#editMarks');
+  if (saveBtn) saveBtn.addEventListener('click', saveEditMark);
+  if (cancelBtn) cancelBtn.addEventListener('click', closeEditModal);
+  if (marksBox) {
+    marksBox.addEventListener('click', (e) => {
+      const btn = e.target.closest('.mark-btn');
+      if (btn) selectEditMark(btn);
+    });
+  }
+  const overlay = $('#editModal');
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closeEditModal();
+    });
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const ov = $('#editModal');
+      if (ov && !ov.hidden) closeEditModal();
+    }
+  });
+}
+
+// --- Log de auditoría de cambios ---
+// Se escribe al editar una marca (D1) y al eliminar un registro (F2).
+// En modo nube va a Firebase (asistencia_3d/_editLog, push); en modo local
+// a localStorage (asistencia_3d_editLog, array acotado a 500 entradas).
+function writeEditLog(entry) {
+  const logEntry = Object.assign({ editedAt: new Date().toISOString() }, entry);
+  if (window.FIREBASE_CONFIGURED && window.firebase) {
+    try {
+      window.firebase.database().ref(FB_PATH + '/_editLog').push(logEntry);
+    } catch (e) {
+      console.warn('No se pudo escribir el log de auditoría', e);
+    }
+    return;
+  }
+  try {
+    const raw = localStorage.getItem('asistencia_3d_editLog');
+    const log = raw ? JSON.parse(raw) : [];
+    log.push(logEntry);
+    if (log.length > 500) log.splice(0, log.length - 500);
+    localStorage.setItem('asistencia_3d_editLog', JSON.stringify(log));
+  } catch (e) {
+    console.warn('No se pudo escribir el log de auditoría', e);
+  }
+}
+
 // --- Reportes ---
 function initReports() {
   const courseSel = $('#reportCourse');
@@ -696,6 +829,7 @@ function renderReport(records) {
   html += '<th scope="col" class="th-num"><span class="th-code">N</span><span class="th-label">Pend.</span></th>';
   html += '<th scope="col" class="th-num">Total</th>';
   html += '<th scope="col" class="th-num">% Asist.</th>';
+  html += '<th scope="col" class="th-actions">Acciones</th>';
   html += '</tr></thead><tbody>';
 
   students.forEach(st => {
@@ -711,6 +845,7 @@ function renderReport(records) {
     html += `<td class="num">${stats.N}</td>`;
     html += `<td class="num total-cell">${stats.total}</td>`;
     html += `<td class="num"><span class="pct-badge" style="background:${pctColor(rowPct)}">${rowPct}%</span></td>`;
+    html += `<td class="num"><button class="edit-btn" data-student="${st.num}" data-name="${st.name}" title="Editar asistencia de ${st.name}" aria-label="Editar asistencia de ${st.name}">✏️</button></td>`;
     html += `</tr>`;
   });
 
@@ -730,6 +865,7 @@ function renderReport(records) {
     html += `<td class="num">${summary.N}</td>`;
     html += `<td class="num total-cell">${summary.total}</td>`;
     html += `<td class="num"><span class="pct-badge" style="background:${pctColor(pct)}">${pct}%</span></td>`;
+    html += '<td class="num"></td>';
     html += '</tr></tfoot>';
   }
 
@@ -746,15 +882,36 @@ function renderReport(records) {
       const fecha = `${parseInt(parts[2], 10)} ${MESES[parseInt(parts[1], 10) - 1]} ${parts[0]}`;
       const m = r.marks[num];
       if (m && MARK_LABELS[m]) {
-        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><span class="mark-badge mark-${m}">${MARK_LABELS[m]}</span></td></tr>`;
+        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><button class="detail-mark-btn" data-date="${r.date}" data-mark="${m}" title="Editar marca del ${fecha}" aria-label="Editar marca del ${fecha}"><span class="mark-badge mark-${m}">${MARK_LABELS[m]}</span></button></td></tr>`;
       } else {
-        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><span class="mark-badge mark-none">Sin registro</span></td></tr>`;
+        html += `<tr><td class="num">${i + 1}</td><td>${fecha}</td><td><button class="detail-mark-btn" data-date="${r.date}" data-mark="" title="Registrar marca del ${fecha}" aria-label="Registrar marca del ${fecha}"><span class="mark-badge mark-none">Sin registro</span></button></td></tr>`;
       }
     });
     html += '</tbody></table></div></div>';
   }
 
   content.innerHTML = html;
+
+  // Edición desde la tabla de estadísticas: la fila agrega varias fechas,
+  // así que el modal abre con la fecha más reciente del rango filtrado.
+  const lastRec = records.length ? records[records.length - 1] : null;
+  content.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const num = btn.dataset.student;
+      const name = btn.dataset.name;
+      const current = lastRec ? (lastRec.marks[num] || null) : null;
+      openEditModal(reportCourse, lastRec ? lastRec.date : '', num, name, current);
+    });
+  });
+
+  // Edición desde el detalle por fecha: cada celda de marca abre el modal
+  // con el estudiante filtrado y la fecha exacta de esa fila.
+  content.querySelectorAll('.detail-mark-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const st = COURSES[reportCourse].students.find(s => String(s.num) === String(reportStudent));
+      openEditModal(reportCourse, btn.dataset.date, reportStudent, st ? st.name : 'Estudiante', btn.dataset.mark || null);
+    });
+  });
 }
 
 // --- Calcular estadísticas de un estudiante ---
