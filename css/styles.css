@@ -424,16 +424,22 @@ body {
   border-radius: 10px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--text-dim);
+  color: var(--text-soft);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.15s ease;
 }
 
 .mark-btn:hover {
   border-color: var(--text-dim);
   color: var(--text);
+}
+
+/* Feedback sutil SOLO en el estado activo (seleccionado), no en hover:
+   el scale en hover se quitó antes por mareo (d228c9e). */
+.mark-btn.active {
+  transform: scale(1.1);
 }
 
 .mark-btn.active[data-mark="P"] {
@@ -480,6 +486,25 @@ body {
   font-size: 0.9rem;
   color: var(--text);
   text-align: center;
+}
+
+.info-text {
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Barra de progreso de marcado (rojo → amarillo → verde) */
+.progress-track {
+  height: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
 
 .empty-state {
@@ -657,9 +682,10 @@ body {
 }
 
 /* La tabla de estadísticas necesita ancho mínimo para que en móvil
-   el scroll horizontal del contenedor haga su trabajo. */
+   el scroll horizontal del contenedor haga su trabajo. Con la columna
+   Estudiante (min-width 180px) el mínimo sube de 560px a 720px. */
 .report-table.stats-table {
-  min-width: 560px;
+  min-width: 720px;
 }
 
 /* El detalle por fecha también conserva su estructura en pantallas angostas */
@@ -689,6 +715,14 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Columna Estudiante: alineada a la izquierda, ancho mínimo para que el
+   nombre completo sea legible (el contenedor .table-wrap hace scroll). */
+.report-table th.th-name,
+.report-table td.name-cell {
+  text-align: left;
+  min-width: 180px;
+}
+
 .report-table td {
   padding: 11px 14px;
   border-bottom: 1px solid var(--border);
@@ -713,6 +747,20 @@ body {
 .total-cell {
   font-weight: 700;
   color: var(--text) !important;
+}
+
+/* Fila de totales (tfoot) */
+.report-table tfoot td {
+  padding: 11px 14px;
+  border-top: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(108, 92, 231, 0.08);
+  color: var(--text);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.report-table tfoot .tfoot-label {
+  text-align: left;
 }
 
 /* Encabezados con abreviatura + etiqueta */
@@ -783,6 +831,82 @@ body {
 }
 
 /* ============================================
+   MODAL DE CONFIRMACIÓN
+   ============================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-box h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.modal-box p {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.btn-modal-cancel {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.btn-modal-ok {
+  background: linear-gradient(135deg, var(--error), #e84393);
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-modal-ok:hover {
+  box-shadow: 0 8px 25px rgba(214, 48, 49, 0.4);
+}
+
+/* ============================================
    IMPRESIÓN (PDF)
    ============================================ */
 /* Envoltorio de impresión: en pantalla no genera caja (display:contents),
@@ -829,7 +953,7 @@ body {
   .summary-value { -webkit-text-fill-color: #000; color: #000; }
   /* Barras: sin animación (la altura inline final queda fija) y con colores de fondo impresos */
   .bar { animation: none !important; }
-  .bar, .pct-badge, .mark-badge, .summary-card, .report-table thead th {
+  .bar, .pct-badge, .mark-badge, .summary-card, .report-table thead th, .report-table tfoot td {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -913,10 +1037,40 @@ body {
 }
 .app-footer p { margin: 0; }
 
+/* Indicador de modo de persistencia (nube / local / sin conexión) */
+.storage-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+}
+
+.storage-badge.cloud {
+  background: rgba(0, 184, 148, 0.12);
+  color: #00b894;
+  border-color: rgba(0, 184, 148, 0.35);
+}
+
+.storage-badge.local {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-soft);
+}
+
+.storage-badge.offline {
+  background: rgba(214, 48, 49, 0.12);
+  color: #d63031;
+  border-color: rgba(214, 48, 49, 0.35);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* Sin escala en el estado activo: el feedback visual se reduce a color */
+  .mark-btn.active { transform: none; }
 }

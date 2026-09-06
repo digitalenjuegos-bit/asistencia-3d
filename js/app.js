@@ -49,20 +49,6 @@ function normalizeMarks(marks) {
   return out;
 }
 
-function denormalizeMarks(marks) {
-  const out = [];
-  if (!marks) return out;
-  let maxNum = 0;
-  for (const [k, v] of Object.entries(marks)) {
-    const n = parseInt(k);
-    if (!isNaN(n) && n > maxNum) maxNum = n;
-  }
-  for (let i = 0; i <= maxNum; i++) {
-    out[i] = marks[i] || null;
-  }
-  return out;
-}
-
 // --- Utilidades DOM ---
 function $(sel) { return document.querySelector(sel); }
 function $$(sel) { return document.querySelectorAll(sel); }
@@ -81,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
   poblarReportes();
   initTilt3D();
   initPrintHeader();
+  restoreLastCourse();
+  updateStorageBadge();
   console.log('Asistencia 3D inicializada OK');
 });
 
@@ -210,6 +198,60 @@ function poblarReportes() {
   }
 }
 
+// --- Restaurar la última selección de curso (localStorage) ---
+function restoreLastCourse() {
+  let last = '';
+  try { last = localStorage.getItem('asistencia_3d_lastCourse') || ''; } catch (e) { return; }
+  if (!last || !COURSES[last]) return;
+
+  // Vista Asistencia
+  const sel = $('#courseSelect');
+  if (sel) sel.value = last;
+  state.course = last;
+  const today = new Date().toISOString().split('T')[0];
+  $('#dateSelect').value = today;
+  loadAttendance();
+
+  // Vista Reportes (mismo curso; el reporte se carga al entrar a la pestaña)
+  const rSel = $('#reportCourse');
+  if (rSel) {
+    rSel.value = last;
+    reportCourse = last;
+    const studentSel = $('#reportStudent');
+    if (studentSel) {
+      studentSel.innerHTML = '<option value="">-- Todos los estudiantes --</option>';
+      COURSES[last].students.forEach(st => {
+        studentSel.innerHTML += '<option value="' + st.num + '">' + st.name + '</option>';
+      });
+    }
+  }
+}
+
+// --- Indicador de modo de persistencia (honesto y dinámico) ---
+// Lee FIREBASE_CONFIGURED y, si es true, verifica la conexión real con una
+// lectura a la RTDB (con timeout). Tres estados: nube, local o sin conexión.
+function updateStorageBadge() {
+  const el = $('#storageBadge');
+  if (!el) return;
+  const setBadge = (text, cls) => {
+    el.textContent = text;
+    el.className = 'storage-badge ' + cls;
+  };
+  if (!window.FIREBASE_CONFIGURED || !window.firebase) {
+    setBadge('Modo local', 'local');
+    return;
+  }
+  const db = window.firebase.database();
+  const timeout = new Promise(res => setTimeout(() => res('timeout'), 5000));
+  Promise.race([
+    db.ref(FB_PATH).once('value').then(() => 'ok'),
+    timeout
+  ]).then(r => {
+    if (r === 'ok') setBadge('Conectado a la nube', 'cloud');
+    else setBadge('Sin conexión a la nube', 'offline');
+  }).catch(() => setBadge('Sin conexión a la nube', 'offline'));
+}
+
 // --- Cambio de curso ---
 function onCourseChange() {
   state.course = $('#courseSelect').value;
@@ -220,6 +262,7 @@ function onCourseChange() {
     $('#infoBar').textContent = '';
     return;
   }
+  try { localStorage.setItem('asistencia_3d_lastCourse', state.course); } catch (e) { /* almacenamiento no disponible */ }
   const today = new Date().toISOString().split('T')[0];
   $('#dateSelect').value = today;
   loadAttendance();
@@ -328,7 +371,14 @@ function updateInfoBar(courseData) {
   const presentes = Object.values(state.marks).filter(m => m === 'P').length;
   const info = $('#infoBar');
   if (info) {
-    info.textContent = `Marcados: ${marked}/${total} | Presentes: ${presentes}`;
+    const pct = total > 0 ? Math.round((marked / total) * 100) : 0;
+    // Rojo (poco avance) → amarillo → verde (completo)
+    const color = pct >= 75 ? '#00b894' : pct >= 40 ? '#fdcb6e' : '#d63031';
+    info.innerHTML =
+      '<span class="info-text">Marcados: ' + marked + '/' + total + ' | Presentes: ' + presentes + '</span>' +
+      '<div class="progress-track" role="progressbar" aria-valuenow="' + marked +
+      '" aria-valuemin="0" aria-valuemax="' + total + '" aria-label="Progreso de marcado">' +
+      '<div class="progress-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
   }
 }
 
@@ -376,12 +426,62 @@ function saveAttendance() {
     showToast('Selecciona curso y fecha');
     return;
   }
+  if (Object.keys(state.marks).length === 0) {
+    showToast('No has marcado ningún estudiante');
+    return;
+  }
 
+  // Si ya existe un registro guardado para curso+fecha, pedir confirmación
+  // antes de sobrescribir. La persistencia automática por clic (a633027) no
+  // se toca: esta confirmación aplica solo al botón Guardar explícito.
+  loadMarks(course, date).then(existing => {
+    const hasExisting = existing && Object.keys(existing).length > 0;
+    if (hasExisting) {
+      showConfirmModal(
+        'Ya existe un registro de asistencia para el ' + date + '. ¿Deseas sobrescribirlo?',
+        () => doSaveAttendance(course, date)
+      );
+    } else {
+      doSaveAttendance(course, date);
+    }
+  });
+}
+
+function doSaveAttendance(course, date) {
   pendingPersist = persistMarks(course, date, state.marks).then(() => {
     showToast(window.FIREBASE_CONFIGURED ? 'Asistencia guardada en la nube' : 'Asistencia guardada (local)');
   }).catch(err => {
     showToast('Error al guardar: ' + (err && err.message ? err.message : 'desconocido'));
   });
+}
+
+// --- Modal de confirmación (sustituye a confirm() nativo, coherente con la estética) ---
+function showConfirmModal(msg, onConfirm) {
+  const overlay = $('#confirmModal');
+  if (!overlay) return;
+  const msgEl = $('#confirmModalMsg');
+  const okBtn = $('#confirmOkBtn');
+  const cancelBtn = $('#confirmCancelBtn');
+  if (msgEl) msgEl.textContent = msg;
+
+  const cleanup = () => {
+    overlay.hidden = true;
+    okBtn.removeEventListener('click', handleOk);
+    cancelBtn.removeEventListener('click', handleCancel);
+    document.removeEventListener('keydown', handleKey);
+    overlay.removeEventListener('click', handleOverlay);
+  };
+  const handleOk = () => { cleanup(); onConfirm(); };
+  const handleCancel = () => { cleanup(); };
+  const handleKey = (e) => { if (e.key === 'Escape') handleCancel(); };
+  const handleOverlay = (e) => { if (e.target === overlay) handleCancel(); };
+
+  okBtn.addEventListener('click', handleOk);
+  cancelBtn.addEventListener('click', handleCancel);
+  document.addEventListener('keydown', handleKey);
+  overlay.addEventListener('click', handleOverlay);
+  overlay.hidden = false;
+  cancelBtn.focus();
 }
 
 // --- Reportes ---
@@ -517,6 +617,7 @@ function renderReport(records) {
   html += '<div class="chart-section"><h3>Asistencia por estudiante</h3>';
   html += '<div class="table-wrap"><table class="report-table stats-table"><thead><tr>';
   html += '<th scope="col" class="th-num">#</th>';
+  html += '<th scope="col" class="th-name">Estudiante</th>';
   html += '<th scope="col" class="th-num"><span class="th-code">P</span><span class="th-label">Presentes</span></th>';
   html += '<th scope="col" class="th-num"><span class="th-code">F</span><span class="th-label">Faltas</span></th>';
   html += '<th scope="col" class="th-num"><span class="th-code">A</span><span class="th-label">Atrasos</span></th>';
@@ -531,6 +632,7 @@ function renderReport(records) {
     const rowPct = stats.total > 0 ? Math.round((stats.P / stats.total) * 100) : 0;
     html += `<tr>`;
     html += `<td class="num">${st.num}</td>`;
+    html += `<td class="name-cell">${st.name}</td>`;
     html += `<td class="num">${stats.P}</td>`;
     html += `<td class="num">${stats.F}</td>`;
     html += `<td class="num">${stats.A}</td>`;
@@ -541,7 +643,26 @@ function renderReport(records) {
     html += `</tr>`;
   });
 
-  html += '</tbody></table></div></div>';
+  html += '</tbody>';
+
+  // Fila de totales (tfoot): suma de columnas y % general, coherente con las
+  // tarjetas de resumen. Solo cuando no hay filtro de estudiante (con filtro,
+  // la fila única ya muestra esos mismos números y el total sería redundante).
+  if (!reportStudent) {
+    html += '<tfoot><tr>';
+    html += '<td class="num"></td>';
+    html += '<td class="tfoot-label">Total</td>';
+    html += `<td class="num">${summary.P}</td>`;
+    html += `<td class="num">${summary.F}</td>`;
+    html += `<td class="num">${summary.A}</td>`;
+    html += `<td class="num">${summary.J}</td>`;
+    html += `<td class="num">${summary.N}</td>`;
+    html += `<td class="num total-cell">${summary.total}</td>`;
+    html += `<td class="num"><span class="pct-badge" style="background:${pctColor(pct)}">${pct}%</span></td>`;
+    html += '</tr></tfoot>';
+  }
+
+  html += '</table></div></div>';
 
   // Detalle de asistencia por fecha (solo cuando hay estudiante filtrado)
   if (reportStudent) {
@@ -617,8 +738,13 @@ function exportCSV() {
     return;
   }
   const courseData = COURSES[reportCourse];
+  // Respetar el filtro de estudiante: si hay uno seleccionado, exportar solo sus datos
+  let students = courseData.students;
+  if (reportStudent) {
+    students = students.filter(st => String(st.num) === String(reportStudent));
+  }
   let csv = 'Numero,Estudiante,Presentes,Faltas,Atrasos,Justificados,Pendientes,Porcentaje_Asistencia\n';
-  courseData.students.forEach(st => {
+  students.forEach(st => {
     const stats = computeStudentStats(st.num, reportData);
     const pct = stats.total > 0 ? Math.round((stats.P / stats.total) * 100) : 0;
     csv += `${st.num},"${st.name}",${stats.P},${stats.F},${stats.A},${stats.J},${stats.N},${pct}%\n`;

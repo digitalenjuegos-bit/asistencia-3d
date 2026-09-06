@@ -117,7 +117,7 @@
               <span aria-hidden="true">&#128193;</span> Exportar CSV
             </button>
             <button id="btnExportPDF" class="btn-export pdf" aria-label="Exportar a PDF" onclick="exportPDF()">
-              <span aria-hidden="true">&#128274;</span> Exportar PDF
+              <span aria-hidden="true">&#128196;</span> Exportar PDF
             </button>
           </div>
         </section>
@@ -141,7 +141,20 @@
 
   <footer class="app-footer">
     <p>© 2026 Mr. Alberto Ottati Rosas. Todos los derechos reservados.</p>
+    <span id="storageBadge" class="storage-badge" role="status">Verificando…</span>
   </footer>
+
+  <!-- Modal de confirmación (sobrescribir registro) -->
+  <div id="confirmModal" class="modal-overlay" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+      <h3 id="confirmModalTitle">Sobrescribir registro</h3>
+      <p id="confirmModalMsg"></p>
+      <div class="modal-actions">
+        <button id="confirmCancelBtn" class="btn-modal-cancel" type="button">Cancelar</button>
+        <button id="confirmOkBtn" class="btn-modal-ok" type="button">Sobrescribir</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Firebase SDK (compat) - solo se usa si FIREBASE_CONFIGURED es true -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
