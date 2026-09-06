@@ -18,6 +18,10 @@ let reportStudent = '';
 let reportFrom = '';
 let reportTo = '';
 
+// Última escritura pendiente de persistencia. El reporte espera a que
+// termine antes de recargar, para no leer datos viejos (carrera de lectura).
+let pendingPersist = Promise.resolve();
+
 const MARK_LABELS = { P: 'Presente', F: 'Falta', A: 'Atraso', J: 'Justificado', N: 'Pendiente' };
 const MARK_COLORS = { P: '#00b894', F: '#d63031', A: '#fdcb6e', J: '#6c5ce7', N: '#9ca3af' };
 
@@ -176,7 +180,15 @@ function switchTab(tab) {
   state.tab = tab;
   $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + tab));
-  if (tab === 'reportes') initReports();
+  if (tab === 'reportes') {
+    initReports();
+    // Recargar el reporte con datos frescos cada vez que se entra a la
+    // pestaña, esperando a que termine cualquier escritura pendiente.
+    // Sin esto, el reporte muestra el snapshot viejo del render anterior.
+    if (reportCourse) {
+      pendingPersist.then(() => loadReport());
+    }
+  }
 }
 
 // --- Poblar selectores de curso ---
@@ -294,6 +306,11 @@ function renderStudentList(courseData, marks) {
         }
         renderStudentList(courseData, state.marks);
         updateInfoBar(courseData);
+        // Persistir de inmediato: el reporte lee de Firebase/localStorage,
+        // no de la memoria. Sin esto, desmarcar no se refleja en Reportes
+        // si el usuario no pulsa el botón Guardar.
+        pendingPersist = persistMarks(state.course, $('#dateSelect').value, state.marks)
+          .catch(() => showToast('Error al guardar el cambio'));
       });
     });
     studentList.appendChild(row);
@@ -325,6 +342,30 @@ function markAllPresent() {
   });
   renderStudentList(courseData, state.marks);
   updateInfoBar(courseData);
+  pendingPersist = persistMarks(course, $('#dateSelect').value, state.marks)
+    .catch(() => showToast('Error al guardar el cambio'));
+}
+
+// --- Persistir marcas (Firebase o localStorage) ---
+// Sin toast: lo usan el clic de marca y "Marcar todos" (persistencia
+// automática) y también el botón Guardar (que añade su propio mensaje).
+function persistMarks(course, date, marks) {
+  const normalized = normalizeMarks(marks);
+  if (window.FIREBASE_CONFIGURED && window.firebase) {
+    const db = window.firebase.database();
+    return db.ref(FB_PATH + '/' + course + '/' + date).set(normalized);
+  }
+  // Modo local
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    if (!data[course]) data[course] = {};
+    data[course][date] = normalized;
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    return Promise.resolve();
+  } catch (e) {
+    return Promise.reject(e);
+  }
 }
 
 // --- Guardar asistencia ---
@@ -336,28 +377,11 @@ function saveAttendance() {
     return;
   }
 
-  const normalized = normalizeMarks(state.marks);
-
-  if (window.FIREBASE_CONFIGURED && window.firebase) {
-    const db = window.firebase.database();
-    db.ref(FB_PATH + '/' + course + '/' + date).set(normalized).then(() => {
-      showToast('Asistencia guardada en la nube');
-    }).catch(err => {
-      showToast('Error al guardar: ' + err.message);
-    });
-  } else {
-    // Modo local
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      const data = raw ? JSON.parse(raw) : {};
-      if (!data[course]) data[course] = {};
-      data[course][date] = normalized;
-      localStorage.setItem(LS_KEY, JSON.stringify(data));
-      showToast('Asistencia guardada (local)');
-    } catch (e) {
-      showToast('Error al guardar localmente');
-    }
-  }
+  pendingPersist = persistMarks(course, date, state.marks).then(() => {
+    showToast(window.FIREBASE_CONFIGURED ? 'Asistencia guardada en la nube' : 'Asistencia guardada (local)');
+  }).catch(err => {
+    showToast('Error al guardar: ' + (err && err.message ? err.message : 'desconocido'));
+  });
 }
 
 // --- Reportes ---
