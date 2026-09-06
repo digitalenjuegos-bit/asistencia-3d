@@ -366,6 +366,8 @@ function loadAttendance() {
     state.hasRecord = Object.keys(state.marks).length > 0;
     renderStudentList(courseData, state.marks);
     updateInfoBar(courseData);
+    const delBtn = $('#deleteRecord');
+    if (delBtn) delBtn.disabled = !state.hasRecord;
   });
 }
 
@@ -529,6 +531,55 @@ function doSaveAttendance(course, date) {
   }).catch(err => {
     showToast('Error al guardar: ' + (err && err.message ? err.message : 'desconocido'));
   });
+}
+
+// --- Eliminar registro completo de una fecha ---
+function deleteRecord() {
+  const course = state.course;
+  const date = $('#dateSelect').value;
+  if (!course || !date) {
+    showToast('Selecciona curso y fecha');
+    return;
+  }
+  if (!state.hasRecord) {
+    showToast('No hay registro guardado para esta fecha');
+    return;
+  }
+  const courseLabel = COURSES[course] ? COURSES[course].label : course;
+  showConfirmModal(
+    'Se eliminará TODO el registro de asistencia del ' + date + ' de ' + courseLabel + '. Esta acción no se puede deshacer.',
+    () => doDeleteRecord(course, date),
+    'Eliminar'
+  );
+}
+
+function doDeleteRecord(course, date) {
+  const remove = (window.FIREBASE_CONFIGURED && window.firebase)
+    ? window.firebase.database().ref(FB_PATH + '/' + course + '/' + date).remove()
+    : Promise.resolve(removeLocalRecord(course, date));
+  remove.then(() => {
+    writeEditLog({ action: 'delete_record', course: course, date: date });
+    state.marks = {};
+    state.hasRecord = false;
+    renderStudentList(COURSES[course], state.marks);
+    updateInfoBar(COURSES[course]);
+    const delBtn = $('#deleteRecord');
+    if (delBtn) delBtn.disabled = true;
+    showToast('Registro del ' + date + ' eliminado');
+  }).catch(err => {
+    showToast('Error al eliminar: ' + (err && err.message ? err.message : 'desconocido'));
+  });
+}
+
+function removeLocalRecord(course, date) {
+  const raw = localStorage.getItem(LS_KEY);
+  const data = raw ? JSON.parse(raw) : {};
+  if (data[course]) {
+    delete data[course][date];
+    // Limpiar curso vacío para no dejar nodos huérfanos
+    if (Object.keys(data[course]).length === 0) delete data[course];
+  }
+  localStorage.setItem(LS_KEY, JSON.stringify(data));
 }
 
 // --- Modal de confirmación (sustituye a confirm() nativo, coherente con la estética) ---
