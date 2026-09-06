@@ -368,6 +368,24 @@ body {
   box-shadow: 0 8px 25px var(--accent-glow);
 }
 
+.btn-export.backup {
+  background: linear-gradient(135deg, #00b894, #55efc4);
+  color: #0f0f1a;
+}
+
+.btn-export.backup:hover {
+  box-shadow: 0 8px 25px rgba(0, 184, 148, 0.5);
+}
+
+.btn-export.restore {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: #fff;
+}
+
+.btn-export.restore:hover {
+  box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5);
+}
+
 /* ============================================
    LISTA DE ESTUDIANTES
    ============================================ */

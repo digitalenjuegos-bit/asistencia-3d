@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initInstallBanner();
   initServiceWorker();
   initEditModal();
+  checkBackupReminder();
   console.log('Asistencia 3D inicializada OK');
 });
 
@@ -472,6 +473,9 @@ function markAllPresent() {
 // Sin toast: lo usan el clic de marca y "Marcar todos" (persistencia
 // automática) y también el botón Guardar (que añade su propio mensaje).
 function persistMarks(course, date, marks) {
+  // Punto de guardado real (lo llaman el clic de marca, "Marcar todos",
+  // el botón Guardar y el modal de edición): cuenta para el recordatorio.
+  bumpSaveCount();
   const normalized = normalizeMarks(marks);
   if (window.FIREBASE_CONFIGURED && window.firebase) {
     const db = window.firebase.database();
@@ -528,16 +532,20 @@ function doSaveAttendance(course, date) {
 }
 
 // --- Modal de confirmación (sustituye a confirm() nativo, coherente con la estética) ---
-function showConfirmModal(msg, onConfirm) {
+// okLabel es opcional: permite cambiar el texto del botón de acción
+// (p. ej. "Restaurar" o "Eliminar" en lugar de "Sobrescribir").
+function showConfirmModal(msg, onConfirm, okLabel) {
   const overlay = $('#confirmModal');
   if (!overlay) return;
   const msgEl = $('#confirmModalMsg');
   const okBtn = $('#confirmOkBtn');
   const cancelBtn = $('#confirmCancelBtn');
   if (msgEl) msgEl.textContent = msg;
+  if (okLabel) okBtn.textContent = okLabel;
 
   const cleanup = () => {
     overlay.hidden = true;
+    if (okLabel) okBtn.textContent = 'Sobrescribir';
     okBtn.removeEventListener('click', handleOk);
     cancelBtn.removeEventListener('click', handleCancel);
     document.removeEventListener('keydown', handleKey);
@@ -997,6 +1005,160 @@ function exportPDF() {
   updatePrintDate();
   updatePrintStudent();
   window.print();
+}
+
+// --- Respaldo y restauración de datos (JSON) ---
+// Lee los datos locales (estructura real: una sola clave LS_KEY con
+// { curso: { fecha: marcas } }).
+function readLocalData() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+// Exporta TODOS los datos: nodo completo de Firebase o localStorage.
+// Estructura: { _meta: {...}, data: {...} }.
+function exportJSON() {
+  const btn = $('#exportJSON');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Exportando…';
+  }
+  const gather = (window.FIREBASE_CONFIGURED && window.firebase)
+    ? window.firebase.database().ref(FB_PATH).once('value').then(snap => snap.val() || {})
+    : Promise.resolve(readLocalData());
+
+  gather.then(data => {
+    const courses = Object.keys(data).filter(k => !k.startsWith('_'));
+    const backup = {
+      _meta: {
+        app: 'Asistencia 3D',
+        exportDate: new Date().toISOString(),
+        source: (window.FIREBASE_CONFIGURED && window.firebase) ? 'firebase' : 'local',
+        totalCourses: courses.length,
+        courses: courses
+      },
+      data: data
+    };
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const today = new Date().toISOString().split('T')[0];
+    a.href = url;
+    a.download = 'asistencia_3d_backup_' + today + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    try {
+      localStorage.setItem('asistencia_3d_lastBackup', String(Date.now()));
+      localStorage.setItem('asistencia_3d_saveCount', '0');
+    } catch (e) { /* almacenamiento no disponible */ }
+    showToast('Respaldo descargado correctamente');
+  }).catch(err => {
+    showToast('Error al exportar: ' + (err && err.message ? err.message : 'desconocido'));
+  }).finally(() => {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = '💾 Respaldo completo';
+    }
+  });
+}
+
+function importJSON(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let backup;
+    try {
+      backup = JSON.parse(reader.result);
+    } catch (e) {
+      showToast('El archivo no es un JSON válido');
+      resetImportInput();
+      return;
+    }
+    if (!backup || !backup._meta || !backup.data || typeof backup.data !== 'object') {
+      showToast('El archivo no es un respaldo de Asistencia 3D');
+      resetImportInput();
+      return;
+    }
+    showConfirmModal(
+      '¿Restaurar datos desde este respaldo? Los datos actuales para las mismas fechas serán sobrescritos.',
+      () => doImportJSON(backup),
+      'Restaurar'
+    );
+  };
+  reader.onerror = () => {
+    showToast('No se pudo leer el archivo');
+    resetImportInput();
+  };
+  reader.readAsText(file);
+}
+
+function doImportJSON(backup) {
+  const data = sanitizeBackupData(backup.data);
+  const restore = (window.FIREBASE_CONFIGURED && window.firebase)
+    ? window.firebase.database().ref(FB_PATH).update(data)
+    : Promise.resolve(restoreLocalData(data));
+  restore.then(() => {
+    const fecha = (backup._meta.exportDate || '').split('T')[0] || 'desconocida';
+    showToast('Respaldo restaurado: ' + fecha);
+    if (state.tab === 'reportes') {
+      if (reportCourse) loadReport();
+    } else if (state.course) {
+      loadAttendance();
+    }
+  }).catch(err => {
+    showToast('Error al restaurar: ' + (err && err.message ? err.message : 'desconocido'));
+  }).finally(() => resetImportInput());
+}
+
+// Quita claves internas (empiezan con _) de un respaldo antes de restaurar:
+// _editLog y similares son metadatos/logs, no datos de asistencia.
+function sanitizeBackupData(data) {
+  const out = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (k.startsWith('_')) continue;
+    out[k] = v;
+  }
+  return out;
+}
+
+function restoreLocalData(data) {
+  const current = readLocalData();
+  for (const [k, v] of Object.entries(data)) {
+    current[k] = v;
+  }
+  localStorage.setItem(LS_KEY, JSON.stringify(current));
+}
+
+function resetImportInput() {
+  const input = $('#importFile');
+  if (input) input.value = '';
+}
+
+// --- Recordatorio periódico de respaldo ---
+// Cuenta cada persistencia real (persistMarks). Al exportar un respaldo,
+// exportJSON resetea el contador y la fecha.
+function bumpSaveCount() {
+  try {
+    const n = parseInt(localStorage.getItem('asistencia_3d_saveCount') || '0', 10);
+    localStorage.setItem('asistencia_3d_saveCount', String(n + 1));
+  } catch (e) { /* almacenamiento no disponible */ }
+}
+
+function checkBackupReminder() {
+  try {
+    const lastBackup = parseInt(localStorage.getItem('asistencia_3d_lastBackup') || '0', 10);
+    const saveCount = parseInt(localStorage.getItem('asistencia_3d_saveCount') || '0', 10);
+    // Sin respaldo previo: días = 0 para no molestar al primer uso; el
+    // recordatorio lo dispara saveCount (>= 50 guardados sin respaldo).
+    const daysSince = lastBackup ? Math.floor((Date.now() - lastBackup) / 86400000) : 0;
+    if (saveCount >= 50 || daysSince >= 14) {
+      showToast('Llevas tiempo sin hacer un respaldo. Ve a Reportes → Respaldo completo.', 5000);
+    }
+  } catch (e) { /* almacenamiento no disponible */ }
 }
 
 // --- Toast ---

@@ -124,6 +124,13 @@
             <button id="btnExportPDF" class="btn-export pdf" aria-label="Exportar a PDF" onclick="exportPDF()">
               <span aria-hidden="true">&#128196;</span> Exportar PDF
             </button>
+            <button id="exportJSON" class="btn-export backup" aria-label="Exportar respaldo completo" onclick="exportJSON()">
+              <span aria-hidden="true">&#128190;</span> Respaldo completo
+            </button>
+            <button id="importJSON" class="btn-export restore" aria-label="Restaurar respaldo" onclick="document.getElementById('importFile').click()">
+              <span aria-hidden="true">&#128194;</span> Restaurar respaldo
+            </button>
+            <input type="file" id="importFile" accept=".json,application/json" hidden onchange="importJSON(this.files[0])">
           </div>
         </section>
 
