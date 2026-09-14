@@ -80,7 +80,7 @@ const COURSES = {
       { num: 12, name: "ZUÑIGA BETTY DOMENICA VALENTINA" }
     ]
   },
-    "Historia_1BGU_A": {
+      "Historia_1BGU_A": {
     label: "Historia 1BGU A",
     color: "#059669",
     students: [
@@ -97,14 +97,14 @@ const COURSES = {
       { num: 11, name: "ESTRADA VERA ARIANA ISABEL" },
       { num: 12, name: "FARFAN LEÓN LUCIANA SOFÍA" },
       { num: 13, name: "FERNANDEZ GONZABAY AMANDA ANNABELLA" },
-      { num: 14, name: "FIALLOS BRUNO" },
+      { num: 14, name: "FIALLOS CONSTANTE BRUNO GABRIEL" },
       { num: 15, name: "GALEFSKI MERINO ALANIS BELEN" },
       { num: 16, name: "GARATE ANDRADE MANUEL ISAIAS" },
-      { num: 17, name: "LEON JORGE" },
+      { num: 17, name: "LEON HIDALGO JORGE ENRIQUE" },
       { num: 18, name: "MEDINA GOMEZ NICOLAS MARTIN" },
       { num: 19, name: "MEDINA MOREJON FABIANNA NICOLE" },
       { num: 20, name: "MOHR MOSCOL LUCAS AGUSTIN" },
-      { num: 21, name: "MONCADA PEDRO" },
+      { num: 21, name: "MONCADA TAPIA PEDRO ARTURO" },
       { num: 22, name: "MONTIEL CEDEÑO RUTH PAULETTE" },
       { num: 23, name: "NAVIA ALCIVAR MIGUEL IVAN" },
       { num: 24, name: "SALAZAR CAMPUZANO THELMO SAMUEL" },
@@ -141,12 +141,12 @@ const COURSES = {
       { num: 24, name: "ZAPATIER PEREZ LEONARDO" }
     ]
   },
-    "Historia_1BGU_C": {
+      "Historia_1BGU_C": {
     label: "Historia 1BGU C",
     color: "#dc2626",
     students: [
       { num: 1, name: "ALAVA PONCE ISABELLA EDITH" },
-      { num: 2, name: "ALVARADO RICARDO" },
+      { num: 2, name: "ALVARADO CASTRO RICARDO EDISON" },
       { num: 3, name: "BONILLA CHAVARRIA JUAN DIEGO" },
       { num: 4, name: "CELLERI RAMIREZ FELIPE ALEJANDRO" },
       { num: 5, name: "CHACON REYES BELEN ALEJANDRA" },
@@ -154,7 +154,7 @@ const COURSES = {
       { num: 7, name: "DE LA CUADRA GARCES EILEEN ALBA" },
       { num: 8, name: "ENCALADA ZAMBRANO SURI POLETTE" },
       { num: 9, name: "GARCIA VELEZ GRACE VALENTINA" },
-      { num: 10, name: "GAVILANEZ WILSON" },
+      { num: 10, name: "GAVILANES MENDEZ WILSON ADRIAN" },
       { num: 11, name: "GILER CAÑARTE LUCCIANA ISABELLE" },
       { num: 12, name: "MARTINEZ VELASQUEZ WLADIMIR ALEJANDRO" },
       { num: 13, name: "MORALES FLORES EMILIO ALEJANDRO" },
@@ -165,10 +165,9 @@ const COURSES = {
       { num: 18, name: "RIVADENEIRA LUZARDO AMANDA LUCIA" },
       { num: 19, name: "RIVERA TINOCO ALEXA MARIA" },
       { num: 20, name: "TOLEDO CASTILLO ROBERTO SEBASTIAN" },
-      { num: 21, name: "VELEZ SAMUEL" },
-      { num: 22, name: "VÉLEZ ZAMBRANO SAMUEL ENRIQUE" },
-      { num: 23, name: "VERA GILER DARMIN MATIAS" },
-      { num: 24, name: "YCAZA MONTJOY RICARDO XAVIER" }
+      { num: 21, name: "VÉLEZ ZAMBRANO SAMUEL ENRIQUE" },
+      { num: 22, name: "VERA GILER DARMIN MATIAS" },
+      { num: 23, name: "YCAZA MONTJOY RICARDO XAVIER" }
     ]
   }
 };
