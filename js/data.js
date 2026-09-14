@@ -115,7 +115,6 @@ const COURSES = {
     label: "Historia 1BGU B",
     color: "#d97706",
     students: [
-      { num: 1, name: "AGUILAR BANCHON FELIPE SANTIAGO" },
       { num: 2, name: "CARDENAS VASQUEZ VALENTINA RAPHAELA" },
       { num: 3, name: "DARQUEA GUERRERO ISABELLA" },
       { num: 4, name: "HIDALGO DROUET SAMANTHA" },
