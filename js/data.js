@@ -163,13 +163,12 @@ const COURSES = {
       { num: 16, name: "RIVADENEIRA LUZARDO AMANDA LUCIA" },
       { num: 17, name: "RIVERA TINOCO ALEXA MARIA" },
       { num: 18, name: "TOLEDO CASTILLO ROBERTO SEBASTIAN" },
-      { num: 19, name: "TRUJILLO HAILLARD PEPO TIMOTHEE" },
-      { num: 20, name: "VÉLEZ ZAMBRANO SAMUEL ENRIQUE" },
-      { num: 21, name: "YCAZA MONTJOY RICARDO XAVIER" },
-      { num: 22, name: "VERA GILER DARMIN MATIAS" },
-      { num: 23, name: "VELEZ SAMUEL" },
-      { num: 24, name: "ALVARADO RICARDO" },
-      { num: 25, name: "GAVILANEZ WILSON" }
+      { num: 19, name: "VÉLEZ ZAMBRANO SAMUEL ENRIQUE" },
+      { num: 20, name: "YCAZA MONTJOY RICARDO XAVIER" },
+      { num: 21, name: "VERA GILER DARMIN MATIAS" },
+      { num: 22, name: "VELEZ SAMUEL" },
+      { num: 23, name: "ALVARADO RICARDO" },
+      { num: 24, name: "GAVILANEZ WILSON" }
     ]
   }
 };
