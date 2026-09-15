@@ -1481,79 +1481,121 @@ body {
 .horario-wrap {
   overflow-x: auto;
   margin-top: 12px;
+  border-radius: 14px;
 }
 
 table.horario {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   width: 100%;
   min-width: 720px;
   font-size: 0.85rem;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
 }
 
 table.horario th,
 table.horario td {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  padding: 9px 10px;
   text-align: center;
   vertical-align: middle;
 }
 
 table.horario thead th {
-  background: rgba(255, 255, 255, 0.06);
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(124, 93, 250, 0.85), rgba(108, 92, 231, 0.65));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.4px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 table.horario thead th small {
   display: block;
-  color: var(--text-soft);
+  color: rgba(255, 255, 255, 0.75);
   font-weight: 400;
+  font-size: 0.72rem;
+  margin-top: 2px;
 }
 
 .horario-dia {
-  font-weight: 700;
-  background: rgba(255, 255, 255, 0.04);
+  font-weight: 800;
+  background: rgba(124, 93, 250, 0.35);
+  color: #fff;
   white-space: nowrap;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
 }
 
 .horario-fija {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--text-soft);
-  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.72rem;
   font-style: italic;
+  letter-spacing: 0.3px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.18) !important;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.18) !important;
 }
 
 .horario-vacia {
   background: rgba(255, 255, 255, 0.015);
 }
 
-.horario-celda {
-  background: rgba(124, 93, 250, 0.10);
+/* Colores por asignatura */
+.horario-econ {
+  background: rgba(124, 93, 250, 0.30);
+  border-color: rgba(124, 93, 250, 0.65) !important;
 }
 
+.horario-hist {
+  background: rgba(0, 180, 216, 0.28);
+  border-color: rgba(0, 180, 216, 0.65) !important;
+}
+
+.horario-taller {
+  background: rgba(255, 159, 67, 0.28);
+  border-color: rgba(255, 159, 67, 0.65) !important;
+}
+
+.horario-rda {
+  background: rgba(232, 67, 147, 0.28);
+  border-color: rgba(232, 67, 147, 0.65) !important;
+}
+
+.horario-celda {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.horario-celda:hover {
+  filter: brightness(1.25);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* Celda con cambio de horario (resaltada, sin texto extra) */
 .horario-cambio {
-  background: rgba(253, 203, 110, 0.15);
-  border: 1px solid rgba(253, 203, 110, 0.5);
-  font-weight: 600;
+  background: rgba(253, 203, 110, 0.35) !important;
+  border: 2px solid rgba(253, 203, 110, 0.9) !important;
+  box-shadow: 0 0 14px rgba(253, 203, 110, 0.35);
 }
 
 .horario-fusion {
-  background: rgba(124, 93, 250, 0.08);
+  background: rgba(232, 67, 147, 0.30);
+  border-color: rgba(232, 67, 147, 0.65) !important;
 }
 
 .horario-texto {
   display: block;
-  font-weight: 600;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .horario-curso {
   display: block;
-  font-size: 0.75rem;
-  color: var(--text-soft);
-}
-
-.horario-movido {
-  display: block;
-  font-size: 0.7rem;
-  color: var(--accent, #fdcb6e);
-  font-weight: 400;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 2px;
+  font-weight: 500;
 }

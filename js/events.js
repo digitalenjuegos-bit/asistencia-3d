@@ -408,6 +408,14 @@ const HORARIO_ACADEMICO = {
   }
 };
 
+function horarioClaseAsignatura(texto) {
+  if (/econom/i.test(texto)) return 'horario-econ';
+  if (/hist/i.test(texto)) return 'horario-hist';
+  if (/taller/i.test(texto)) return 'horario-taller';
+  if (/rda|roa/i.test(texto)) return 'horario-rda';
+  return '';
+}
+
 function renderHorario() {
   const cont = document.getElementById('horarioTabla');
   if (!cont) return;
@@ -432,13 +440,12 @@ function renderHorario() {
         html += '<td class="horario-vacia"></td>';
         return;
       }
-      let cls = 'horario-celda';
+      let cls = 'horario-celda ' + horarioClaseAsignatura(celda.texto);
       if (celda.movida) cls += ' horario-cambio';
       if (celda.fusionada) { cls += ' horario-fusion'; saltar = true; }
       html += '<td class="' + cls + '"' + (celda.fusionada ? ' colspan="2"' : '') + '>';
       html += '<span class="horario-texto">' + celda.texto + '</span>';
       if (celda.curso) html += '<small class="horario-curso">' + celda.curso + '</small>';
-      if (celda.movida) html += '<small class="horario-movido">Movido del viernes</small>';
       html += '</td>';
     });
     html += '</tr>';
