@@ -356,8 +356,101 @@ function initNotificaciones() {
   evCheckDaily();
 }
 
+// --- Horario académico ---
+// Franjas del día. Las que tienen 'fija' se repiten todos los días.
+const HORARIO_FRANJAS = [
+  { id: '1', hora: '7:15-8:00' },
+  { id: '2', hora: '8:05-8:50' },
+  { id: '3', hora: '8:55-9:40' },
+  { id: 'break', hora: '9:40-9:55', fija: 'Receso' },
+  { id: 'ap', hora: '9:55-10:05', fija: 'Atención Plena' },
+  { id: '4', hora: '10:05-10:50' },
+  { id: '5', hora: '10:55-11:40' },
+  { id: '6', hora: '11:50-12:30' },
+  { id: 'lunch', hora: '12:30-13:05', fija: 'Almuerzo' },
+  { id: '7', hora: '13:05-13:50' }
+];
+
+const HORARIO_DIAS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi'];
+
+// Celdas por día y franja. 'movida' marca el cambio solicitado
+// (Historia 1B pasó de la 5ta hora del viernes a la 5ta hora del miércoles).
+// 'fusionada' indica una celda que ocupa dos franjas (colspan=2).
+const HORARIO_ACADEMICO = {
+  Lu: {
+    '3': { texto: 'Historia', curso: '1B' },
+    '4': { texto: 'Historia', curso: '1C' },
+    '5': { texto: 'Historia', curso: '1A' },
+    '7': { texto: 'Economía', curso: '2A/2B/2C' }
+  },
+  Ma: {
+    '2': { texto: 'Economía', curso: '2A/2B/2C' },
+    '4': { texto: 'Historia', curso: '1C' },
+    '6': { texto: 'Historia', curso: '1B' },
+    '7': { texto: 'Historia', curso: '1A' }
+  },
+  Mi: {
+    '1': { texto: 'Economía', curso: '3A/3B/3C' },
+    '5': { texto: 'Historia', curso: '1B', movida: true },
+    '7': { texto: 'Taller A/A', curso: '1A/1B/1C/2A/2B/2C/3A/3B/3C' }
+  },
+  Ju: {
+    '1': { texto: 'Economía', curso: '2A/2B/2C' },
+    '2': { texto: 'Economía', curso: '3A/3B/3C' },
+    '4': { texto: 'RdA', curso: '', fusionada: true },
+    '6': { texto: 'Taller A/A', curso: '1A/1B/1C/2A/2B/2C/3A/3B/3C' }
+  },
+  Vi: {
+    '1': { texto: 'Economía', curso: '2A/2B/2C' },
+    '3': { texto: 'Historia', curso: '1C' },
+    '4': { texto: 'Economía', curso: '3A/3B/3C' },
+    '6': { texto: 'Historia', curso: '1A' }
+  }
+};
+
+function renderHorario() {
+  const cont = document.getElementById('horarioTabla');
+  if (!cont) return;
+
+  let html = '<table class="horario"><thead><tr><th class="horario-dia">Día</th>';
+  HORARIO_FRANJAS.forEach(function (f) {
+    html += '<th>' + f.id + '<small>' + f.hora + '</small></th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  HORARIO_DIAS.forEach(function (dia) {
+    html += '<tr><th class="horario-dia">' + dia + '</th>';
+    let saltar = false;
+    HORARIO_FRANJAS.forEach(function (f) {
+      if (saltar) { saltar = false; return; }
+      if (f.fija) {
+        html += '<td class="horario-fija">' + f.fija + '</td>';
+        return;
+      }
+      const celda = HORARIO_ACADEMICO[dia] && HORARIO_ACADEMICO[dia][f.id];
+      if (!celda) {
+        html += '<td class="horario-vacia"></td>';
+        return;
+      }
+      let cls = 'horario-celda';
+      if (celda.movida) cls += ' horario-cambio';
+      if (celda.fusionada) { cls += ' horario-fusion'; saltar = true; }
+      html += '<td class="' + cls + '"' + (celda.fusionada ? ' colspan="2"' : '') + '>';
+      html += '<span class="horario-texto">' + celda.texto + '</span>';
+      if (celda.curso) html += '<small class="horario-curso">' + celda.curso + '</small>';
+      if (celda.movida) html += '<small class="horario-movido">Movido del viernes</small>';
+      html += '</td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  cont.innerHTML = html;
+}
+
 // --- Inicialización ---
 function initEvents() {
+  renderHorario();
   renderTimeline();
   renderSumativa();
   renderUpcoming();

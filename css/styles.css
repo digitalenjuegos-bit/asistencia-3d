@@ -1476,3 +1476,84 @@ body {
 @media print {
   .notif-controls, .notif-status, .events-hint { display: none !important; }
 }
+
+/* --- Horario académico --- */
+.horario-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+table.horario {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 720px;
+  font-size: 0.85rem;
+}
+
+table.horario th,
+table.horario td {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+table.horario thead th {
+  background: rgba(255, 255, 255, 0.06);
+  font-weight: 600;
+}
+
+table.horario thead th small {
+  display: block;
+  color: var(--text-soft);
+  font-weight: 400;
+}
+
+.horario-dia {
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.horario-fija {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-soft);
+  font-size: 0.75rem;
+  font-style: italic;
+}
+
+.horario-vacia {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.horario-celda {
+  background: rgba(124, 93, 250, 0.10);
+}
+
+.horario-cambio {
+  background: rgba(253, 203, 110, 0.15);
+  border: 1px solid rgba(253, 203, 110, 0.5);
+  font-weight: 600;
+}
+
+.horario-fusion {
+  background: rgba(124, 93, 250, 0.08);
+}
+
+.horario-texto {
+  display: block;
+  font-weight: 600;
+}
+
+.horario-curso {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-soft);
+}
+
+.horario-movido {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--accent, #fdcb6e);
+  font-weight: 400;
+}
