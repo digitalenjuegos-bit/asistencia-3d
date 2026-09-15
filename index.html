@@ -28,6 +28,10 @@
       <span class="nav-icon" aria-hidden="true">&#128202;</span>
       <span class="nav-label">Reportes</span>
     </button>
+    <button class="nav-btn" data-tab="eventos" aria-selected="false">
+      <span class="nav-icon" aria-hidden="true">&#128197;</span>
+      <span class="nav-label">Eventos</span>
+    </button>
   </nav>
 
   <!-- Vistas -->
@@ -152,6 +156,61 @@
         </section>
       </div>
     </div>
+
+    <!-- Vista: Eventos -->
+    <div class="view" id="view-eventos">
+      <div class="container">
+        <header class="app-header">
+          <img src="img/logo-logos-academy.png" alt="Logotipo Logos Academy" class="app-logo">
+          <h1 class="app-title">Eventos Académicos 2026-2027</h1>
+          <p class="app-subtitle">Calendario de parciales, evaluaciones y avisos</p>
+        </header>
+
+        <!-- Notificaciones de escritorio -->
+        <section class="card-3d" aria-label="Notificaciones de escritorio">
+          <h2 class="section-title">
+            <span class="number">1</span>
+            Notificaciones de escritorio
+          </h2>
+          <p class="events-hint">Recibe un aviso en tu computadora cuando un evento esté en curso o esté por comenzar.</p>
+          <div class="notif-controls">
+            <button id="notifEnableBtn" class="btn-export" type="button">Activar notificaciones</button>
+            <label class="notif-toggle">
+              <input type="checkbox" id="notifDailyToggle">
+              <span>Recordatorio diario</span>
+            </label>
+          </div>
+          <p id="notifStatus" class="notif-status" role="status"></p>
+        </section>
+
+        <!-- Calendario de parciales -->
+        <section class="card-3d" data-no-tilt aria-label="Calendario de parciales">
+          <h2 class="section-title">
+            <span class="number">2</span>
+            Calendario de parciales
+          </h2>
+          <div id="eventsTimeline" class="events-timeline"></div>
+        </section>
+
+        <!-- Evaluación sumativa Parcial 3 -->
+        <section class="card-3d" data-no-tilt aria-label="Evaluación sumativa Parcial 3">
+          <h2 class="section-title">
+            <span class="number">3</span>
+            Evaluación sumativa Parcial 3
+          </h2>
+          <div id="eventsSumativa" class="events-sumativa"></div>
+        </section>
+
+        <!-- Próximos eventos -->
+        <section class="card-3d" data-no-tilt aria-label="Próximos eventos">
+          <h2 class="section-title">
+            <span class="number">4</span>
+            Próximos eventos
+          </h2>
+          <div id="eventsUpcoming" class="events-upcoming"></div>
+        </section>
+      </div>
+    </div>
   </div>
 
   <!-- Banner de instalación PWA (se muestra con beforeinstallprompt) -->
@@ -208,6 +267,7 @@
 
   <script src="js/data.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/events.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

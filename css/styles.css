@@ -1271,3 +1271,208 @@ body {
   /* Sin escala en el estado activo: el feedback visual se reduce a color */
   .mark-btn.active { transform: none; }
 }
+
+/* ============================================
+   EVENTOS ACADÉMICOS
+   ============================================ */
+.events-hint {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+}
+
+.notif-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.notif-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: 0.95rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.notif-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.notif-status {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* Lista de eventos */
+.events-timeline, .events-upcoming {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 14px;
+  padding: 14px 16px;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.event-item.vacaciones { border-left-color: var(--secondary); }
+.event-item.evaluacion { border-left-color: var(--accent); }
+.event-item.aviso { border-left-color: var(--warning); }
+
+.event-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(108, 92, 231, 0.35);
+}
+
+.event-icon {
+  font-size: 1.4rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.event-body { flex: 1; min-width: 0; }
+
+.event-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.event-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.event-dates {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.event-desc {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  margin-top: 6px;
+}
+
+.event-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.event-badge.active {
+  background: rgba(0, 184, 148, 0.15);
+  color: var(--success);
+  border: 1px solid rgba(0, 184, 148, 0.4);
+}
+
+.event-badge.upcoming {
+  background: rgba(253, 203, 110, 0.15);
+  color: var(--warning);
+  border: 1px solid rgba(253, 203, 110, 0.4);
+}
+
+.event-badge.done {
+  background: rgba(160, 160, 176, 0.12);
+  color: var(--text-dim);
+  border: 1px solid rgba(160, 160, 176, 0.3);
+}
+
+/* Evaluación sumativa */
+.events-sumativa {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sumativa-nivel {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.sumativa-nivel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--secondary);
+}
+
+.sumativa-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sumativa-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.sumativa-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sumativa-list li {
+  background: rgba(108, 92, 231, 0.12);
+  border: 1px solid rgba(108, 92, 231, 0.3);
+  color: var(--text-soft);
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.sumativa-notas {
+  margin-top: 4px;
+  background: rgba(253, 203, 110, 0.08);
+  border: 1px solid rgba(253, 203, 110, 0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.sumativa-notas ul {
+  margin: 8px 0 0 18px;
+}
+
+.sumativa-notas li {
+  margin-bottom: 4px;
+}
+
+@media (max-width: 640px) {
+  .sumativa-cols { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .notif-controls, .notif-status, .events-hint { display: none !important; }
+}

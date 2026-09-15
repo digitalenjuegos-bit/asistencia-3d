@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initInstallBanner();
   initServiceWorker();
   initEditModal();
+  initEvents();
   checkBackupReminder();
   console.log('Asistencia 3D inicializada OK');
 });
