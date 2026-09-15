@@ -385,12 +385,14 @@ const HORARIO_ACADEMICO = {
   },
   Ma: {
     '2': { texto: 'Economía', curso: '2A/2B/2C' },
+    '3': { texto: 'Economía', curso: '2A/2B/2C' },
     '4': { texto: 'Historia', curso: '1C' },
     '6': { texto: 'Historia', curso: '1B' },
     '7': { texto: 'Historia', curso: '1A' }
   },
   Mi: {
     '1': { texto: 'Economía', curso: '3A/3B/3C' },
+    '2': { texto: 'Economía', curso: '3A/3B/3C' },
     '5': { texto: 'Historia', curso: '1B', movida: true },
     '7': { texto: 'Taller A/A', curso: '1A/1B/1C/2A/2B/2C/3A/3B/3C' }
   },
