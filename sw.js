@@ -10,7 +10,7 @@
 // su persistencia offline es propia y cachear sus requests causaría
 // conflictos con la conexión en tiempo real.
 
-const CACHE_NAME = 'asistencia-3d-v2';
+const CACHE_NAME = 'asistencia-3d-v3';
 
 const ASSETS_TO_CACHE = [
   '/asistencia-3d/',
@@ -19,6 +19,7 @@ const ASSETS_TO_CACHE = [
   '/asistencia-3d/js/app.js',
   '/asistencia-3d/js/data.js',
   '/asistencia-3d/js/config.js',
+  '/asistencia-3d/js/events.js',
   '/asistencia-3d/img/logo-logos-academy.png',
   '/asistencia-3d/manifest.json',
   '/asistencia-3d/icons/icon-192.png',
