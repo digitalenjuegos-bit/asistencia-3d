@@ -1162,12 +1162,27 @@ body {
   .print-layout {
     display: table;
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
   }
   .print-layout > thead { display: table-header-group; }
   .print-layout > tbody { display: table-row-group; }
   .print-layout > tbody > tr { display: table-row; }
-  .print-layout > tbody > tr > td { display: table-cell; padding: 0; }
+  .print-layout > tbody > tr > td { display: table-cell; padding: 0; overflow: hidden; }
+
+  /* Fix 2026-09-23: el contenido del reporte (stats-table min-width 790px)
+     desbordaba el ancho imprimible A4 (~487pts) y la impresión real recortaba
+     el borde derecho (fecha del membrete, tarjeta Pendientes, columna % Asist.).
+     Con table-layout:fixed + overflow:hidden el contenido se ajusta a la página;
+     se reduce padding/fuente de la tabla y se oculta el th-label (queda solo el
+     código P/F/A/J/N) para que todo quepa holgado. */
+  .report-table.stats-table { min-width: 0; }
+  .report-table.stats-table th,
+  .report-table.stats-table td { padding: 8px 6px; }
+  .report-table.stats-table th { font-size: 0.68rem; }
+  .report-table.stats-table th.th-name,
+  .report-table.stats-table td.name-cell { min-width: 0; }
+  .report-table.stats-table .th-label { display: none !important; }
 
   .print-header-cell {
     padding: 12px 0 10px;
