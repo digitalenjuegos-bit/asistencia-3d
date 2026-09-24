@@ -1614,3 +1614,72 @@ table.horario thead th small {
   margin-top: 2px;
   font-weight: 500;
 }
+
+/* ============================================
+   VISTA: LISTAS POR CURSO
+   ============================================ */
+.listas-content {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 22px;
+}
+
+.lista-curso {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 14px;
+  padding: 18px 18px 8px;
+}
+
+.lista-curso-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.lista-curso-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.lista-count {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.lista-export {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  margin-right: 0;
+}
+
+.lista-curso .report-table td.email-cell {
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.sin-correo {
+  color: var(--text-dim);
+  opacity: 0.55;
+}
+
+.listas-status {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-left: 10px;
+}

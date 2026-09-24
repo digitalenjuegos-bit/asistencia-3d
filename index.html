@@ -36,6 +36,10 @@
       <span class="nav-icon" aria-hidden="true">&#128337;</span>
       <span class="nav-label">Horario</span>
     </button>
+    <button class="nav-btn" data-tab="listas" aria-selected="false">
+      <span class="nav-icon" aria-hidden="true">&#128101;</span>
+      <span class="nav-label">Listas</span>
+    </button>
   </nav>
 
   <!-- Vistas -->
@@ -236,6 +240,36 @@
         </section>
       </div>
     </div>
+
+    <!-- Vista: Listas por curso -->
+    <div class="view" id="view-listas">
+      <div class="container">
+        <header class="app-header">
+          <img src="img/logo-logos-academy.png" alt="Logotipo Logos Academy" class="app-logo">
+          <h1 class="app-title">Listas por curso</h1>
+          <p class="app-subtitle">Estudiantes y correos institucionales 2026-2027</p>
+        </header>
+
+        <section class="card-3d" data-no-tilt aria-label="Listas por curso">
+          <h2 class="section-title">
+            <span class="number">1</span>
+            Listas de estudiantes
+          </h2>
+          <div class="btn-row">
+            <button id="btnExportListasGlobal" class="btn-export" type="button" onclick="exportListasExcel('global')">
+              <span aria-hidden="true">&#128193;</span> Exportar todo (Excel)
+            </button>
+            <span id="listasExportStatus" class="listas-status" role="status" aria-live="polite"></span>
+          </div>
+          <div id="listasContent" class="listas-content">
+            <div class="empty-state">
+              <span class="icon">&#128101;</span>
+              <p>Cargando listas…</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
   </div>
 
   <!-- Banner de instalación PWA (se muestra con beforeinstallprompt) -->
@@ -293,6 +327,8 @@
   <script src="js/data.js"></script>
   <script src="js/config.js"></script>
   <script src="js/events.js"></script>
+  <script src="js/listas.js"></script>
+  <script src="js/listas-view.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

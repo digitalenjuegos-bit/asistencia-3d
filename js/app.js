@@ -185,6 +185,9 @@ function switchTab(tab) {
       pendingPersist.then(() => loadReport());
     }
   }
+  if (tab === 'listas' && typeof renderListas === 'function') {
+    renderListas();
+  }
 }
 
 // --- Poblar selectores de curso ---
