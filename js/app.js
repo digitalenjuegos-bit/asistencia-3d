@@ -370,8 +370,7 @@ function loadAttendance() {
     state.hasRecord = Object.keys(state.marks).length > 0;
     renderStudentList(courseData, state.marks);
     updateInfoBar(courseData);
-    const delBtn = $('#deleteRecord');
-    if (delBtn) delBtn.disabled = !state.hasRecord;
+    syncRecordState();
   });
 }
 
@@ -428,6 +427,7 @@ function renderStudentList(courseData, marks) {
         }
         renderStudentList(courseData, state.marks);
         updateInfoBar(courseData);
+        syncRecordState();
         // Persistir de inmediato: el reporte lee de Firebase/localStorage,
         // no de la memoria. Sin esto, desmarcar no se refleja en Reportes
         // si el usuario no pulsa el botón Guardar.
@@ -461,6 +461,16 @@ function updateInfoBar(courseData) {
   }
 }
 
+// --- Sincronizar estado del registro y botón Eliminar ---
+// El clic de marca y "Marcar todos" persisten de inmediato, así que en cuanto
+// hay marcas en memoria ya existe un registro: el botón Eliminar debe quedar
+// habilitado para poder vaciar los casilleros.
+function syncRecordState() {
+  state.hasRecord = Object.keys(state.marks).length > 0;
+  const delBtn = $('#deleteRecord');
+  if (delBtn) delBtn.disabled = !state.hasRecord;
+}
+
 // --- Marcar todos presentes ---
 function markAllPresent() {
   const course = state.course;
@@ -471,6 +481,7 @@ function markAllPresent() {
   });
   renderStudentList(courseData, state.marks);
   updateInfoBar(courseData);
+  syncRecordState();
   pendingPersist = persistMarks(course, $('#dateSelect').value, state.marks)
     .catch(() => showToast('Error al guardar el cambio'));
 }
@@ -545,7 +556,7 @@ function deleteRecord() {
     showToast('Selecciona curso y fecha');
     return;
   }
-  if (!state.hasRecord) {
+  if (!state.hasRecord && Object.keys(state.marks).length === 0) {
     showToast('No hay registro guardado para esta fecha');
     return;
   }
