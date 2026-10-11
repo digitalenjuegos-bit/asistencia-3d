@@ -368,6 +368,16 @@ function loadAttendance() {
   loadMarks(course, date).then(marks => {
     state.marks = marks || {};
     state.hasRecord = Object.keys(state.marks).length > 0;
+    // Red de seguridad "todos presentes por defecto": si NO existe registro
+    // guardado para esta clase+fecha y la fecha no es futura, marcar a todos
+    // los estudiantes como Presente ('P'), persistir y mostrar la lista ya
+    // completa. Si ya hay registro, se respeta tal cual (nunca se pisa).
+    if (!state.hasRecord && date <= new Date().toISOString().split('T')[0]) {
+      courseData.students.forEach(st => { state.marks[st.num] = 'P'; });
+      state.hasRecord = true;
+      pendingPersist = persistMarks(course, date, state.marks)
+        .catch(() => showToast('Error al guardar el registro inicial'));
+    }
     renderStudentList(courseData, state.marks);
     updateInfoBar(courseData);
     const delBtn = $('#deleteRecord');
@@ -422,7 +432,14 @@ function renderStudentList(courseData, marks) {
         const mark = btn.dataset.mark;
         const num = st.num;
         if (state.marks[num] === mark) {
-          delete state.marks[num];
+          // Toggle: si el estudiante está en Presente y se pulsa Presente,
+          // pasa a Falta ('F') con un toque (el docente ve a todos en P y
+          // marca al ausente). Las demás marcas (F, A, J, N) se borran como antes.
+          if (mark === 'P') {
+            state.marks[num] = 'F';
+          } else {
+            delete state.marks[num];
+          }
         } else {
           state.marks[num] = mark;
         }
