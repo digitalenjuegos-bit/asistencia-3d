@@ -342,7 +342,7 @@ function onCourseChange() {
   try { localStorage.setItem('asistencia_3d_lastCourse', state.course); } catch (e) { /* almacenamiento no disponible */ }
   const today = new Date().toISOString().split('T')[0];
   $('#dateSelect').value = today;
-  loadAttendance(true); // elección explícita del docente: aplica default
+  loadAttendance();
 }
 
 // --- Cambio de fecha (sin resetear el curso ni forzar la fecha de hoy) ---
@@ -350,15 +350,11 @@ function onDateChange() {
   if (!state.course) return;
   state.marks = {};
   state.hasRecord = false;
-  loadAttendance(true); // elección explícita del docente: aplica default
+  loadAttendance();
 }
 
 // --- Cargar asistencia para curso+fecha ---
-// allowDefault: true solo cuando el docente elige explícitamente la clase o
-// la fecha (onCourseChange/onDateChange). La carga silenciosa del arranque
-// (restoreLastCourse) y las recargas técnicas (editar marca, restaurar
-// respaldo) NO aplican el default: si no hay registro, la lista queda vacía.
-function loadAttendance(allowDefault) {
+function loadAttendance() {
   const course = state.course;
   const date = $('#dateSelect').value;
   if (!course || !date) return;
@@ -372,17 +368,6 @@ function loadAttendance(allowDefault) {
   loadMarks(course, date).then(marks => {
     state.marks = marks || {};
     state.hasRecord = Object.keys(state.marks).length > 0;
-    // Red de seguridad "todos presentes por defecto": SOLO cuando el docente
-    // eligió explícitamente la clase o la fecha (allowDefault), si NO existe
-    // registro guardado y la fecha no es futura, marcar a todos los
-    // estudiantes como Presente ('P'), persistir y mostrar la lista ya
-    // completa. Si ya hay registro, se respeta tal cual (nunca se pisa).
-    if (allowDefault && !state.hasRecord && date <= new Date().toISOString().split('T')[0]) {
-      courseData.students.forEach(st => { state.marks[st.num] = 'P'; });
-      state.hasRecord = true;
-      pendingPersist = persistMarks(course, date, state.marks)
-        .catch(() => showToast('Error al guardar el registro inicial'));
-    }
     renderStudentList(courseData, state.marks);
     updateInfoBar(courseData);
     const delBtn = $('#deleteRecord');
@@ -437,14 +422,7 @@ function renderStudentList(courseData, marks) {
         const mark = btn.dataset.mark;
         const num = st.num;
         if (state.marks[num] === mark) {
-          // Toggle: si el estudiante está en Presente y se pulsa Presente,
-          // pasa a Falta ('F') con un toque (el docente ve a todos en P y
-          // marca al ausente). Las demás marcas (F, A, J, N) se borran como antes.
-          if (mark === 'P') {
-            state.marks[num] = 'F';
-          } else {
-            delete state.marks[num];
-          }
+          delete state.marks[num];
         } else {
           state.marks[num] = mark;
         }
