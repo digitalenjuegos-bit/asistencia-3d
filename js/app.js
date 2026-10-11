@@ -342,7 +342,7 @@ function onCourseChange() {
   try { localStorage.setItem('asistencia_3d_lastCourse', state.course); } catch (e) { /* almacenamiento no disponible */ }
   const today = new Date().toISOString().split('T')[0];
   $('#dateSelect').value = today;
-  loadAttendance();
+  loadAttendance(true); // elección explícita del docente: aplica default
 }
 
 // --- Cambio de fecha (sin resetear el curso ni forzar la fecha de hoy) ---
@@ -350,11 +350,15 @@ function onDateChange() {
   if (!state.course) return;
   state.marks = {};
   state.hasRecord = false;
-  loadAttendance();
+  loadAttendance(true); // elección explícita del docente: aplica default
 }
 
 // --- Cargar asistencia para curso+fecha ---
-function loadAttendance() {
+// allowDefault: true solo cuando el docente elige explícitamente la clase o
+// la fecha (onCourseChange/onDateChange). La carga silenciosa del arranque
+// (restoreLastCourse) y las recargas técnicas (editar marca, restaurar
+// respaldo) NO aplican el default: si no hay registro, la lista queda vacía.
+function loadAttendance(allowDefault) {
   const course = state.course;
   const date = $('#dateSelect').value;
   if (!course || !date) return;
@@ -368,11 +372,12 @@ function loadAttendance() {
   loadMarks(course, date).then(marks => {
     state.marks = marks || {};
     state.hasRecord = Object.keys(state.marks).length > 0;
-    // Red de seguridad "todos presentes por defecto": si NO existe registro
-    // guardado para esta clase+fecha y la fecha no es futura, marcar a todos
-    // los estudiantes como Presente ('P'), persistir y mostrar la lista ya
+    // Red de seguridad "todos presentes por defecto": SOLO cuando el docente
+    // eligió explícitamente la clase o la fecha (allowDefault), si NO existe
+    // registro guardado y la fecha no es futura, marcar a todos los
+    // estudiantes como Presente ('P'), persistir y mostrar la lista ya
     // completa. Si ya hay registro, se respeta tal cual (nunca se pisa).
-    if (!state.hasRecord && date <= new Date().toISOString().split('T')[0]) {
+    if (allowDefault && !state.hasRecord && date <= new Date().toISOString().split('T')[0]) {
       courseData.students.forEach(st => { state.marks[st.num] = 'P'; });
       state.hasRecord = true;
       pendingPersist = persistMarks(course, date, state.marks)
