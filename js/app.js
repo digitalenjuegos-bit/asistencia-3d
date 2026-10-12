@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
   configurarNavegacion();
   poblarCursos();
   poblarReportes();
-  initTilt3D();
+  initCardGlow();
   initPrintHeader();
   restoreLastCourse();
   updateStorageBadge();
@@ -80,25 +80,20 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Asistencia 3D inicializada OK');
 });
 
-// --- Efecto tilt 3D sobre tarjetas ---
-function initTilt3D() {
+// --- Resplandor suave sobre las tarjetas (sin inclinación 3D) ---
+// El tilt 3D se retiró: al inclinarse la tarjeta, los botones se movían bajo
+// el cursor y el clic fallaba. Ahora la tarjeta queda estática y solo se
+// desplaza el resplandor que sigue al puntero.
+function initCardGlow() {
   $$('.card-3d').forEach(card => {
-    // Tarjetas con data-no-tilt no se inclinan (evita mareo en listas largas)
+    // Tarjetas con data-no-tilt no llevan resplandor (listas largas)
     if (card.hasAttribute('data-no-tilt')) return;
     card.addEventListener('mousemove', (e) => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      const rotateX = (y - centerY) / 25;
-      const rotateY = (centerX - x) / 25;
-      card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
       card.style.setProperty('--mouse-x', ((x / rect.width) * 100) + '%');
       card.style.setProperty('--mouse-y', ((y / rect.height) * 100) + '%');
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
     });
   });
 }

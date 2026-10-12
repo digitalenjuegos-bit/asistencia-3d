@@ -92,7 +92,6 @@ body {
 
 .nav-btn:hover {
   color: var(--text);
-  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(108, 92, 231, 0.25);
   border-color: var(--primary);
 }
@@ -102,7 +101,6 @@ body {
   color: #fff;
   border-color: transparent;
   box-shadow: 0 8px 30px var(--primary-glow);
-  transform: translateY(-2px);
 }
 
 .nav-icon {
@@ -222,9 +220,9 @@ body {
   padding: 24px;
   border: 1px solid var(--border);
   position: relative;
-  transform-style: preserve-3d;
-  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-  transition: transform 0.15s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  /* Sin inclinación 3D: la tarjeta queda estática para que los botones no se
+     muevan bajo el cursor y el clic sea fiable. */
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
   margin-bottom: 24px;
 }
 
@@ -319,7 +317,6 @@ body {
 }
 
 .btn-save:hover {
-  transform: translateY(-2px);
   box-shadow: 0 8px 30px var(--primary-glow);
 }
 
@@ -338,7 +335,6 @@ body {
 .btn-mark:hover {
   border-color: var(--secondary);
   color: var(--secondary);
-  transform: translateY(-2px);
 }
 
 .btn-delete {
@@ -355,7 +351,6 @@ body {
 }
 
 .btn-delete:hover:not(:disabled) {
-  transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(214, 48, 49, 0.5);
 }
 
@@ -378,7 +373,6 @@ body {
 }
 
 .btn-export:hover {
-  transform: translateY(-2px);
   box-shadow: 0 8px 25px var(--secondary-glow);
 }
 
@@ -477,10 +471,10 @@ body {
   color: var(--text);
 }
 
-/* Feedback sutil SOLO en el estado activo (seleccionado), no en hover:
-   el scale en hover se quitó antes por mareo (d228c9e). */
+/* Feedback SOLO por color en el estado activo (seleccionado): sin escala ni
+   movimiento, para que los botones queden estáticos y el clic sea fiable. */
 .mark-btn.active {
-  transform: scale(1.1);
+  transform: none;
 }
 
 .mark-btn.active[data-mark="P"] {
@@ -1007,7 +1001,6 @@ body {
 
 .btn-install:hover {
   box-shadow: 0 8px 25px var(--primary-glow);
-  transform: translateY(-2px);
 }
 
 .btn-ghost {
@@ -1071,7 +1064,6 @@ body {
 
 .edit-btn:hover {
   background: rgba(108, 92, 231, 0.25);
-  transform: scale(1.1);
 }
 
 /* Celdas de marca clicables en el detalle por fecha */
