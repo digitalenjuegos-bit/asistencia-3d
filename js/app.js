@@ -209,6 +209,16 @@ function poblarReportes() {
   }
 }
 
+// --- Fecha elegida por el usuario (localStorage) ---
+// Se conserva entre cambios de curso y recargas para no saltar a hoy.
+function getLastDate() {
+  try { return localStorage.getItem('asistencia_3d_lastDate') || ''; } catch (e) { return ''; }
+}
+function persistLastDate(date) {
+  if (!date) return;
+  try { localStorage.setItem('asistencia_3d_lastDate', date); } catch (e) { /* almacenamiento no disponible */ }
+}
+
 // --- Restaurar la última selección de curso (localStorage) ---
 function restoreLastCourse() {
   let last = '';
@@ -219,8 +229,9 @@ function restoreLastCourse() {
   const sel = $('#courseSelect');
   if (sel) sel.value = last;
   state.course = last;
+  const savedDate = getLastDate();
   const today = new Date().toISOString().split('T')[0];
-  $('#dateSelect').value = today;
+  $('#dateSelect').value = savedDate || today;
   loadAttendance();
 
   // Vista Reportes (mismo curso; el reporte se carga al entrar a la pestaña)
@@ -340,8 +351,11 @@ function onCourseChange() {
     return;
   }
   try { localStorage.setItem('asistencia_3d_lastCourse', state.course); } catch (e) { /* almacenamiento no disponible */ }
-  const today = new Date().toISOString().split('T')[0];
-  $('#dateSelect').value = today;
+  // Conservar la fecha ya elegida por el usuario; solo usar hoy si el campo está vacío.
+  if (!$('#dateSelect').value) {
+    $('#dateSelect').value = new Date().toISOString().split('T')[0];
+  }
+  persistLastDate($('#dateSelect').value);
   loadAttendance();
 }
 
@@ -350,6 +364,7 @@ function onDateChange() {
   if (!state.course) return;
   state.marks = {};
   state.hasRecord = false;
+  persistLastDate($('#dateSelect').value);
   loadAttendance();
 }
 
